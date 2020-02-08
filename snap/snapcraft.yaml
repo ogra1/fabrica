@@ -1,4 +1,4 @@
-name: snapmill
+name: fabrica
 base: core18
 version: '0.1'
 summary: Build snaps by simply pointing a web form to a git tree
