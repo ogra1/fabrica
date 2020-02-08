@@ -31,6 +31,9 @@ parts:
     plugin: python
     python-packages:
       - pylxd
+    build-packages:
+      - libffi-dev
+      - libssl-dev
   scripts:
     source: .
     plugin: nil
