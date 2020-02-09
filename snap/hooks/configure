@@ -1,0 +1,27 @@
+#! /bin/sh
+
+disable(){
+  snapctl stop --disable ${SNAP_NAME}.init
+}
+
+if ! snapctl is-connected mount-observe; then
+  echo "need read access to disk size information !!!"
+  echo "please run 'snap connect ${SNAP_NAME}:mount-observe"
+  echo
+  echo "disabling service for the moment"
+  disable
+  exit 0
+fi
+
+if ! snapctl is-connected lxd; then
+  echo "need write access to lxd socket !!!"
+  echo "please run 'snap connect ${SNAP_NAME}:lxd lxd:lxd"
+  echo
+  echo "disabling service for the moment"
+  disable
+  exit 0
+fi
+
+if snapctl services ${SNAP_NAME}.init | grep -q inactive; then
+  snapctl start --enable ${SNAP_NAME}.init 2>&1 || true
+fi

@@ -1,0 +1,15 @@
+#! /bin/sh
+
+#! /bin/sh
+
+if ! snapctl is-connected mount-observe; then
+  echo "also need read access to disk size information !!!"
+  echo "please run 'snap connect ${SNAP_NAME}:mount-observe"
+  echo
+  echo "keeping service disabled for the moment"
+  exit 0
+fi
+
+if snapctl services ${SNAP_NAME}.init | grep -q inactive; then
+  snapctl start --enable ${SNAP_NAME}.init 2>&1 || true
+fi

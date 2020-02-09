@@ -15,13 +15,13 @@ apps:
     command: init.py
     daemon: oneshot
     plugs:
+      #- lxd
       - mount-observe
       - network-bind
-      - lxd
   build:
     command: build.py
     plugs:
-      - lxd
+      #- lxd
       - network
       - network-bind
       - system-observe
