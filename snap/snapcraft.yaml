@@ -13,15 +13,26 @@ confinement: strict
 apps:
   init:
     command: init.py
-    daemon: oneshot
+    daemon: simple
     plugs:
-      #- lxd
+      - lxd
       - mount-observe
       - network-bind
   build:
     command: build.py
     plugs:
-      #- lxd
+      - lxd
+      - mount-observe
+      - network
+      - network-bind
+      - system-observe
+  ws:
+    command: ws.py
+    environment:
+      PYTHONPATH: $SNAP/lib:$SNAP/usr/lib:$PYTHONPATH
+    plugs:
+      - lxd
+      - home
       - network
       - network-bind
       - system-observe
@@ -42,3 +53,6 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp init.py $SNAPCRAFT_PART_INSTALL/bin/
       cp build.py $SNAPCRAFT_PART_INSTALL/bin/
+      cp ws.py $SNAPCRAFT_PART_INSTALL/bin/
+    stage-packages:
+      - python3-websockets
