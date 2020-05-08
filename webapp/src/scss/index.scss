@@ -1,0 +1,29 @@
+// Import settings
+@import "./settings";
+
+// Import and include base Vanilla
+@import "node_modules/vanilla-framework/scss/build";
+
+// Import MAAS overrides of Vanilla patterns
+@import "./vanilla-overrides";
+
+
+// Import and include MAAS global styles
+
+@import "./patterns_navigation";
+//@include maas-buttons;
+//@include maas-double-row;
+//@include maas-footer;
+//@include maas-forms;
+//@include maas-icons;
+//@include maas-links;
+@include maas-navigation;
+//@include maas-notifications;
+//@include maas-table-actions;
+//@include maas-tables;
+//@include maas-tabs;
+//@include maas-utilities;
+
+.field_value {
+  color: #666666;
+}
