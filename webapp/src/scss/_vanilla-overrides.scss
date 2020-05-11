@@ -1,0 +1,56 @@
+/**
+ * Vanilla overrides.
+ * {Date} {Person}: {Description of issue}
+ * {Link to relevant GitHub issue}
+ */
+
+// 09-12-2019 Huw: Truncate does not show ellipsis with expanding tables.
+// https://github.com/canonical-web-and-design/vanilla-framework/issues/2697
+.p-table-expanding td.u-truncate {
+  display: block;
+}
+
+// 27-11-2019 Caleb: Tooltips cannot be used with React Portals.
+// https://github.com/canonical-web-and-design/vanilla-framework/issues/2672
+.p-tooltip__message--portal {
+  display: inline;
+}
+
+// 03-02-2020 Caleb: Cannot give label a className when using Input component.
+// https://github.com/canonical-web-and-design/react-components/issues/67
+input[type="checkbox"],
+input[type="radio"] {
+  &.has-inline-label + label {
+    display: inline;
+    padding-top: 0;
+
+    &::before {
+      left: 0rem;
+      top: 0.125rem;
+    }
+
+    &::after {
+      left: 0.1875rem;
+      top: 0.375rem;
+    }
+  }
+}
+
+// 10-03-2020 Caleb: Spacing around checkboxes/radios too tight when $multi = 1
+// https://github.com/canonical-web-and-design/vanilla-framework/issues/2913
+input[type="checkbox"],
+input[type="radio"] {
+  + label {
+    margin-bottom: 0.6rem;
+
+    .p-list__item:not(:first-child) &,
+    .p-form__group:not(:first-child) & {
+      margin-top: -0.5rem;
+    }
+  }
+}
+.p-form-help-text,
+.p-form-validation__message {
+  margin-bottom: 0.8rem;
+  margin-top: -0.5rem;
+}

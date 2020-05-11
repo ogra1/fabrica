@@ -1,6 +1,6 @@
 name: fabrica
 base: core18
-version: '0.1'
+version: '0.2'
 summary: Build snaps by simply pointing a web form to a git tree
 description: |
   Fabrica is a web service to be run on an lxd appliance. It spawns a
@@ -12,27 +12,26 @@ confinement: strict
 
 apps:
   init:
-    command: init.py
+    command: bin/init.py
     daemon: simple
     plugs:
       - lxd
       - mount-observe
       - network-bind
   build:
-    command: build.py
+    command: bin/build.py
     plugs:
       - lxd
       - mount-observe
       - network
       - network-bind
       - system-observe
-  ws:
-    command: ws.py
-    environment:
-      PYTHONPATH: $SNAP/lib:$SNAP/usr/lib:$PYTHONPATH
+  web:
+    command: bin/web
+    daemon: simple
     plugs:
       - lxd
-      - home
+      - mount-observe
       - network
       - network-bind
       - system-observe
@@ -51,8 +50,26 @@ parts:
     override-build: |
       snapcraftctl build
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
-      cp init.py $SNAPCRAFT_PART_INSTALL/bin/
-      cp build.py $SNAPCRAFT_PART_INSTALL/bin/
-      cp ws.py $SNAPCRAFT_PART_INSTALL/bin/
+      cp bin/init.py $SNAPCRAFT_PART_INSTALL/bin/
+      cp bin/build.py $SNAPCRAFT_PART_INSTALL/bin/
     stage-packages:
       - python3-websockets
+
+  application:
+    plugin: go
+    source: .
+    source-type: git
+    build-packages:
+      - gcc
+
+  static:
+    source: static
+    plugin: dump
+    organize:
+      "*": /static/
+
+  bin:
+    source: snap/local
+    plugin: dump
+    organize:
+      "*": /bin/
