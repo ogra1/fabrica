@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import api from "./api";
 import {formatError, T} from "./Utils";
-import {MainTable, Link} from "@canonical/react-components";
+import {MainTable, Link, Row} from "@canonical/react-components";
 import Build from "./Build";
 
 class BuildList extends Component {
@@ -33,10 +33,6 @@ class BuildList extends Component {
         this.getData()
     }
 
-    handleShowClick = (e) => {
-        this.setState({expandedRow: 1})
-    }
-
     render() {
 
         let data = this.state.builds.map(r => {
@@ -53,16 +49,18 @@ class BuildList extends Component {
         return (
             <div>
                 <Build onClick={this.handleBuildClick} />
-                <MainTable headers={[
-                {
-                    content: T('name')
-                }, {
-                    content: T('repo')
-                }, {
-                    content: T('created')
-                }, {
-                    content: ''
-                }]} rows={data} />
+                <Row>
+                    <MainTable headers={[
+                    {
+                        content: T('name')
+                    }, {
+                        content: T('repo')
+                    }, {
+                        content: T('created')
+                    }, {
+                        content: ''
+                    }]} rows={data} />
+                </Row>
             </div>
         );
     }
