@@ -41,8 +41,14 @@ class BuildLog extends Component {
         }
     }
 
+    changeScroll() {
+        if (!this.state.scrollLog) {
+            window.scrollTo(0, 0)
+        }
+    }
+
     handleScrollClick = (e) => {
-        this.setState({scrollLog: !this.state.scrollLog})
+        this.setState({scrollLog: !this.state.scrollLog}, this.changeScroll)
     }
 
     renderLog() {
@@ -72,7 +78,7 @@ class BuildLog extends Component {
                         ]} />
 
                     {this.state.scrollLog ?
-                        <Button className="col-2" appearance="brand" onClick={this.handleScrollClick}>{T('scroll-off')}</Button>
+                        ''
                         :
                         <Button className="col-2" appearance="neutral" onClick={this.handleScrollClick}>{T('scroll-on')}</Button>
                     }
@@ -84,7 +90,7 @@ class BuildLog extends Component {
                     {this.state.scrollLog ?
                         <Button className="col-2" appearance="brand" onClick={this.handleScrollClick}>{T('scroll-off')}</Button>
                         :
-                        <Button className="col-2" appearance="neutral" onClick={this.handleScrollClick}>{T('scroll-on')}</Button>
+                        ''
                     }
                 </Row>
             </Row>

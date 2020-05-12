@@ -3,6 +3,7 @@ import api from "./api";
 import {formatError, T} from "./Utils";
 import {MainTable, Link, Row} from "@canonical/react-components";
 import Build from "./Build";
+import BuildStatus from "./BuildStatus";
 
 class BuildList extends Component {
     constructor(props) {
@@ -41,6 +42,7 @@ class BuildList extends Component {
                     {content: r.name, role: 'rowheader'},
                     {content: r.repo},
                     {content: r.created},
+                    {content: <BuildStatus status={r.status} />},
                     {content: <Link href={'/builds/'+r.id}>{T('show')}</Link>}
                     ],
             }
@@ -58,7 +60,11 @@ class BuildList extends Component {
                     }, {
                         content: T('created')
                     }, {
-                        content: ''
+                        content: T('status'),
+                        className: "u-align--center col-small"
+                    }, {
+                        content: '',
+                        className: "u-align--center col-small"
                     }]} rows={data} />
                 </Row>
             </div>
