@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import api from "./api";
 import {formatError, T} from "./Utils";
-import {MainTable, Link, Row} from "@canonical/react-components";
+import {MainTable, Row} from "@canonical/react-components";
 import Build from "./Build";
 import BuildStatus from "./BuildStatus";
 import BuildActions from "./BuildActions";
@@ -44,7 +44,7 @@ class BuildList extends Component {
                     {content: r.repo},
                     {content: r.created},
                     {content: <BuildStatus status={r.status} />},
-                    {content: <BuildActions id={r.id} />}
+                    {content: <BuildActions id={r.id}/>, className: "u-align--center col-small"}
                     ],
             }
         })
@@ -64,8 +64,8 @@ class BuildList extends Component {
                         content: T('status'),
                         className: "u-align--center col-small"
                     }, {
-                        content: '',
-                        className: "u-align--center col-small"
+                        content: T('actions'),
+                        className: "u-align--center"
                     }]} rows={data} />
                 </Row>
             </div>

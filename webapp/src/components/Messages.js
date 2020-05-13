@@ -10,6 +10,6 @@ export default {
     'repo': 'Repository',
     'scroll-off': 'Auto-scroll Off',
     'scroll-on': 'Auto-scroll On',
-    'show': 'Show',
     'status': 'Status',
+    'view': 'View',
 }
