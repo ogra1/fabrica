@@ -60,6 +60,8 @@ parts:
       cp -r build/static/js $SNAPCRAFT_PART_INSTALL/static/
       cp -r build/static/images $SNAPCRAFT_PART_INSTALL/static/
       cp build/* $SNAPCRAFT_PART_INSTALL/static/ || :
+    build-packages:
+      - curl
 
   pylxd:
     plugin: python
