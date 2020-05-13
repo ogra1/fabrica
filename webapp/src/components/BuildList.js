@@ -44,7 +44,7 @@ class BuildList extends Component {
                     {content: r.repo},
                     {content: r.created},
                     {content: <BuildStatus status={r.status} />},
-                    {content: <BuildActions id={r.id}/>, className: "u-align--center col-small"}
+                    {content: <BuildActions id={r.id} download={r.download}/>}
                     ],
             }
         })
@@ -57,9 +57,10 @@ class BuildList extends Component {
                     {
                         content: T('name')
                     }, {
-                        content: T('repo')
+                        content: T('repo'),
+                        className: "col-large"
                     }, {
-                        content: T('created')
+                        content: T('created'),
                     }, {
                         content: T('status'),
                         className: "u-align--center col-small"

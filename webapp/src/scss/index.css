@@ -5509,4 +5509,13 @@ pre {
   color: #eeeeee; }
 
 .col-small {
-  flex: 0.2 0 0; }
+  width: 5%; }
+
+.col-medium {
+  width: 10%; }
+
+.col-large {
+  width: 30%; }
+
+.action {
+  margin-left: 5px; }

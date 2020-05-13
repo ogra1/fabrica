@@ -41,5 +41,19 @@ pre {
 }
 
 .col-small {
-  flex: 0.2 0 0;
+  width: 5%;
+}
+
+.col-medium {
+  width: 10%;
+}
+
+.col-large {
+  width: 30%;
+}
+
+
+.action {
+  padding: 2px;
+  height: 1.8rem;
 }
