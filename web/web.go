@@ -46,6 +46,7 @@ func (srv Web) Router() *mux.Router {
 	// Default path is the index page
 	router.Handle("/", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 	router.Handle("/builds/{id}", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
+	router.Handle("/builds/{id}/download", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 
 	return router
 }

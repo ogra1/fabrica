@@ -4,6 +4,7 @@ import {formatError, T} from "./Utils";
 import {MainTable, Link, Row} from "@canonical/react-components";
 import Build from "./Build";
 import BuildStatus from "./BuildStatus";
+import BuildActions from "./BuildActions";
 
 class BuildList extends Component {
     constructor(props) {
@@ -43,7 +44,7 @@ class BuildList extends Component {
                     {content: r.repo},
                     {content: r.created},
                     {content: <BuildStatus status={r.status} />},
-                    {content: <Link href={'/builds/'+r.id}>{T('show')}</Link>}
+                    {content: <BuildActions id={r.id} />}
                     ],
             }
         })
