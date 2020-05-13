@@ -2,8 +2,8 @@ package sqlite
 
 import (
 	"database/sql"
-	"github.com/rs/xid"
 	"github.com/ogra1/fabrica/domain"
+	"github.com/rs/xid"
 	"log"
 )
 
@@ -13,7 +13,8 @@ const createBuildTableSQL string = `
 		name             varchar(200) not null,
 		repo             varchar(200) not null,
 		status           varchar(20) default '',
-		created          timestamp default current_timestamp
+		created          timestamp default current_timestamp,
+        download         varchar(20) default ''
 	)
 `
 
@@ -23,13 +24,16 @@ const addBuildSQL = `
 const updateBuildSQL = `
 	UPDATE build SET status=$1 WHERE id=$2
 `
+const updateBuildDownloadSQL = `
+	UPDATE build SET download=$1 WHERE id=$2
+`
 const listBuildSQL = `
-	SELECT id, name, repo, status, created
+	SELECT id, name, repo, status, created, download
 	FROM build
 	ORDER BY created DESC
 `
 const getBuildSQL = `
-	SELECT id, name, repo, status, created
+	SELECT id, name, repo, status, created, download
 	FROM build
 	WHERE id=$1
 `
@@ -47,6 +51,12 @@ func (db *DB) BuildUpdate(id, status string) error {
 	return err
 }
 
+// BuildUpdateDownload updates a build request's download file path
+func (db *DB) BuildUpdateDownload(id, download string) error {
+	_, err := db.Exec(updateBuildDownloadSQL, download, id)
+	return err
+}
+
 // BuildList get the list of builds
 func (db *DB) BuildList() ([]domain.Build, error) {
 	logs := []domain.Build{}
@@ -58,7 +68,7 @@ func (db *DB) BuildList() ([]domain.Build, error) {
 
 	for rows.Next() {
 		r := domain.Build{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download)
 		if err != nil {
 			return logs, err
 		}
@@ -71,7 +81,7 @@ func (db *DB) BuildList() ([]domain.Build, error) {
 // BuildGet fetches a build with its logs
 func (db *DB) BuildGet(id string) (domain.Build, error) {
 	r := domain.Build{}
-	err := db.QueryRow(getBuildSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created)
+	err := db.QueryRow(getBuildSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download)
 	switch {
 	case err == sql.ErrNoRows:
 		return r, err

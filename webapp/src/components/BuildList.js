@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
 import api from "./api";
 import {formatError, T} from "./Utils";
-import {MainTable, Link, Row} from "@canonical/react-components";
+import {MainTable, Row} from "@canonical/react-components";
 import Build from "./Build";
 import BuildStatus from "./BuildStatus";
+import BuildActions from "./BuildActions";
 
 class BuildList extends Component {
     constructor(props) {
@@ -43,7 +44,7 @@ class BuildList extends Component {
                     {content: r.repo},
                     {content: r.created},
                     {content: <BuildStatus status={r.status} />},
-                    {content: <Link href={'/builds/'+r.id}>{T('show')}</Link>}
+                    {content: <BuildActions id={r.id} download={r.download}/>}
                     ],
             }
         })
@@ -56,15 +57,16 @@ class BuildList extends Component {
                     {
                         content: T('name')
                     }, {
-                        content: T('repo')
+                        content: T('repo'),
+                        className: "col-large"
                     }, {
-                        content: T('created')
+                        content: T('created'),
                     }, {
                         content: T('status'),
                         className: "u-align--center col-small"
                     }, {
-                        content: '',
-                        className: "u-align--center col-small"
+                        content: T('actions'),
+                        className: "u-align--center"
                     }]} rows={data} />
                 </Row>
             </div>

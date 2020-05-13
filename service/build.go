@@ -14,9 +14,10 @@ import (
 )
 
 const (
-	statusInProgress = "in-progress"
-	statusFailed     = "failed"
-	statusComplete   = "complete"
+	statusInProgress    = "in-progress"
+	statusFailed        = "failed"
+	statusComplete      = "complete"
+	downloadFileMessage = "Archived snap package: "
 )
 
 // BuildSrv interface for building images
@@ -60,7 +61,7 @@ func (bld *BuildService) requestBuild(repo string, buildID string) error {
 	// Set up the build command
 	p := path.Join(os.Getenv("SNAP"), "bin/build.py")
 
-	cmd := exec.Command(p, repo)
+	cmd := exec.Command(p, repo, buildID)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Println(err)
@@ -86,6 +87,10 @@ func (bld *BuildService) requestBuild(repo string, buildID string) error {
 			_ = bld.Datastore.BuildUpdate(buildID, statusFailed)
 			return fmt.Errorf("error storing log: %v", err)
 		}
+
+		if strings.HasPrefix(s.Text(), downloadFileMessage) {
+			bld.checkForDownloadFile(buildID, s.Text())
+		}
 	}
 
 	if err := cmd.Wait(); err != nil {
@@ -96,6 +101,14 @@ func (bld *BuildService) requestBuild(repo string, buildID string) error {
 
 	_ = bld.Datastore.BuildUpdate(buildID, statusComplete)
 	return nil
+}
+
+// checkForDownloadFile parses the message to see if we have the download file path
+func (bld *BuildService) checkForDownloadFile(buildID, message string) {
+	p := strings.TrimPrefix(message, downloadFileMessage)
+	if err := bld.Datastore.BuildUpdateDownload(buildID, p); err != nil {
+		log.Println("Error storing download path:", err)
+	}
 }
 
 // List returns a list of the builds that have been requested

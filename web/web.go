@@ -36,6 +36,7 @@ func (srv Web) Router() *mux.Router {
 
 	router.Handle("/v1/build", Middleware(http.HandlerFunc(srv.Build))).Methods("POST")
 	router.Handle("/v1/builds", Middleware(http.HandlerFunc(srv.BuildList))).Methods("GET")
+	router.Handle("/v1/builds/{id}/download", Middleware(http.HandlerFunc(srv.BuildDownload))).Methods("GET")
 	router.Handle("/v1/builds/{id}", Middleware(http.HandlerFunc(srv.BuildLog))).Methods("GET")
 
 	// Serve the static path
@@ -45,6 +46,7 @@ func (srv Web) Router() *mux.Router {
 	// Default path is the index page
 	router.Handle("/", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 	router.Handle("/builds/{id}", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
+	router.Handle("/builds/{id}/download", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 
 	return router
 }
