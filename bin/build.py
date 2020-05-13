@@ -88,15 +88,18 @@ def spawn_async(cmd, container):
     
     thread.join()
 
-def pull_snap(dir, container):
+def pull_snap(dir, container, build_id):
     snap = container.execute(['sh', '-c', 'ls /root/' + dir + '/*.snap']).stdout.rstrip()
-    outsnap = os.environ["HOME"] + '/' + os.path.basename(snap)
+    out_dir = os.environ["HOME"] + '/' + build_id
+    os.makedirs(out_dir, exist_ok=True)
+    outsnap = out_dir + '/' + os.path.basename(snap)
     print('Pulling snap package ' + snap + ' to ' + outsnap)
     try:
         filedata = container.files.get(snap)
         filewr = open(outsnap, 'wb')
         filewr.write(filedata)
         filewr.close()
+        print('Archived snap package: ' + outsnap)
     except Exception as ex:
         print('can not write ' + outsnap)
         print(ex)
@@ -104,6 +107,7 @@ def pull_snap(dir, container):
 def main():
     try:
         tree = sys.argv[1]
+        build_id = sys.argv[2]
         cname, dir = parse_args(tree)
 
         container = launch_container(cname, 'bionic')
@@ -123,7 +127,7 @@ def main():
         print('Running build for ' + tree)
         spawn_async(build, container)		
 
-        pull_snap(dir, container)
+        pull_snap(dir, container, build_id)
     except KeyboardInterrupt:
             cleanup(container, 0, '')
             raise
