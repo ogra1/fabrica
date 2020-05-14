@@ -17,7 +17,7 @@ func (srv Web) Build(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Start the build
+	// Start the build for the repo with this ID
 	buildID, err := srv.BuildSrv.Build(req.Repo)
 	if err != nil {
 		formatStandardResponse("build", err.Error(), w)

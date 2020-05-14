@@ -42,16 +42,21 @@ func NewBuildService(ds datastore.Datastore) *BuildService {
 }
 
 // Build starts a build with lxd
-func (bld *BuildService) Build(repo string) (string, error) {
+func (bld *BuildService) Build(repoID string) (string, error) {
+	// Get the repo from the ID
+	repo, err := bld.Datastore.RepoGet(repoID)
+	if err != nil {
+		return "", fmt.Errorf("cannot find the repository: %v", err)
+	}
+
 	// Store the build request
-	name := nameFromRepo(repo)
-	buildID, err := bld.Datastore.BuildCreate(name, repo)
+	buildID, err := bld.Datastore.BuildCreate(repo.Name, repo.Repo)
 	if err != nil {
 		return buildID, fmt.Errorf("error storing build request: %v", err)
 	}
 
 	// Start the build in a go routine
-	go bld.requestBuild(repo, buildID)
+	go bld.requestBuild(repo.Repo, buildID)
 
 	return buildID, nil
 }

@@ -5518,4 +5518,5 @@ pre {
   width: 30%; }
 
 .action {
-  margin-left: 5px; }
+  padding: 2px;
+  height: 1.8rem; }

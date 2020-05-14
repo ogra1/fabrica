@@ -4,15 +4,15 @@ import "time"
 
 // Repo is the requested repository to watch
 type Repo struct {
-	ID       string    `json:"id"`
-	Name     string    `json:"name"`
-	Repo     string    `json:"repo"`
-	LastHash string    `json:"hash"`
-	Created  time.Time `json:"created"`
-	Modified time.Time `json:"modified"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Repo       string    `json:"repo"`
+	LastCommit string    `json:"hash"`
+	Created    time.Time `json:"created"`
+	Modified   time.Time `json:"modified"`
 }
 
-// Build is the requested build
+// RepoAdd is the requested build
 type Build struct {
 	ID       string     `json:"id"`
 	Name     string     `json:"name"`

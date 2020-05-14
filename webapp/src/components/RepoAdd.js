@@ -3,7 +3,7 @@ import {Button, Card, Form, Input, Row} from "@canonical/react-components";
 import {T, formatError} from "./Utils";
 import api from './api'
 
-class Build extends Component {
+class RepoAdd extends Component {
     constructor(props) {
         super(props)
         this.state = {repo: ''}
@@ -16,8 +16,8 @@ class Build extends Component {
 
     handleClick = (e) => {
         e.preventDefault()
-        api.build(this.state.repo).then(response => {
-            window.location.href = '/builds/' + response.data.message
+        api.repoCreate(this.state.repo).then(response => {
+            this.props.onClick()
         })
         .catch(e => {
             console.log(formatError(e.response.data))
@@ -28,11 +28,11 @@ class Build extends Component {
     render() {
         return (
             <Row>
-                <br />
-                <Card title={T('build-title')}>
+                <Card>
                     <Form>
                         <Input onChange={this.handleRepoChange} type="text" id="repo" placeholder="https://github.com/ogra1/fabrica.git" label="Git Repo" value={this.state.repo}/>
-                        <Button onClick={this.handleClick} appearance="positive">{T('build')}</Button>
+                        <Button onClick={this.handleClick} appearance="positive">{T('add')}</Button>
+                        <Button onClick={this.props.onCancel} appearance="neutral">{T('cancel')}</Button>
                     </Form>
                 </Card>
             </Row>
@@ -40,4 +40,4 @@ class Build extends Component {
     }
 }
 
-export default Build;
+export default RepoAdd;

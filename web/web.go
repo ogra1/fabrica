@@ -34,6 +34,9 @@ func (srv Web) Router() *mux.Router {
 	// Start the web service router
 	router := mux.NewRouter()
 
+	router.Handle("/v1/repos", Middleware(http.HandlerFunc(srv.RepoList))).Methods("GET")
+	router.Handle("/v1/repos", Middleware(http.HandlerFunc(srv.RepoCreate))).Methods("POST")
+
 	router.Handle("/v1/build", Middleware(http.HandlerFunc(srv.Build))).Methods("POST")
 	router.Handle("/v1/builds", Middleware(http.HandlerFunc(srv.BuildList))).Methods("GET")
 	router.Handle("/v1/builds/{id}/download", Middleware(http.HandlerFunc(srv.BuildDownload))).Methods("GET")

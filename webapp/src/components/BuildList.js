@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import api from "./api";
 import {formatError, T} from "./Utils";
 import {MainTable, Row} from "@canonical/react-components";
-import Build from "./Build";
 import BuildStatus from "./BuildStatus";
 import BuildActions from "./BuildActions";
 
@@ -50,9 +49,10 @@ class BuildList extends Component {
         })
 
         return (
-            <div>
-                <Build onClick={this.handleBuildClick} />
+            <section>
+
                 <Row>
+                    <h3>{T('build-requests')}</h3>
                     <MainTable headers={[
                     {
                         content: T('name')
@@ -69,7 +69,7 @@ class BuildList extends Component {
                         className: "u-align--center"
                     }]} rows={data} />
                 </Row>
-            </div>
+            </section>
         );
     }
 }

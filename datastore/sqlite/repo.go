@@ -1,8 +1,10 @@
 package sqlite
 
 import (
+	"database/sql"
 	"github.com/ogra1/fabrica/domain"
 	"github.com/rs/xid"
+	"log"
 )
 
 const createRepoTableSQL string = `
@@ -27,6 +29,11 @@ const listRepoSQL = `
 const updateRepoHashSQL = `
 	UPDATE repo SET hash=$1, modified=current_timestamp WHERE id=$2
 `
+const getRepoSQL = `
+	SELECT id, name, location, hash, created, modified
+	FROM repo
+	WHERE id=$1
+`
 
 // RepoCreate creates a new repository to watch
 func (db *DB) RepoCreate(name, repo string) (string, error) {
@@ -46,7 +53,7 @@ func (db *DB) RepoList() ([]domain.Repo, error) {
 
 	for rows.Next() {
 		r := domain.Repo{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.LastHash, &r.Created, &r.Modified)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.LastCommit, &r.Created, &r.Modified)
 		if err != nil {
 			return records, err
 		}
@@ -60,4 +67,18 @@ func (db *DB) RepoList() ([]domain.Repo, error) {
 func (db *DB) RepoUpdateHash(id, hash string) error {
 	_, err := db.Exec(updateRepoHashSQL, hash, id)
 	return err
+}
+
+// RepoGet fetches a repo from its ID
+func (db *DB) RepoGet(id string) (domain.Repo, error) {
+	r := domain.Repo{}
+	err := db.QueryRow(getRepoSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.LastCommit, &r.Created, &r.Modified)
+	switch {
+	case err == sql.ErrNoRows:
+		return r, err
+	case err != nil:
+		log.Printf("Error retrieving database repo: %v\n", err)
+		return r, err
+	}
+	return r, nil
 }

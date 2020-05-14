@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Header from "./components/Header";
+import RepoList from "./components/RepoList";
 import BuildList from "./components/BuildList";
 import {parseRoute} from "./components/Utils";
 import BuildLog from "./components/BuildLog";
@@ -20,6 +21,7 @@ class App extends Component {
             <div>
                 <Header/>
 
+                {r.section===''? <RepoList/> : ''}
                 {r.section===''? <BuildList/> : ''}
                 {r.section==='builds'? <BuildLog buildId={r.sectionId} /> : ''}
 
