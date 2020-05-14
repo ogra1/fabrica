@@ -8,25 +8,9 @@ class RepoList extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            records: [
-                //{id:'aaa', name:'test', repo:'github.com/TestCompany/test', hash:'abcdef', created:'2020-05-14T19:01:34Z', modified:'2020-05-14T19:01:34Z'}
-                ],
             showAdd: false,
+            repo: '',
         }
-    }
-
-    getData() {
-        api.repoList().then(response => {
-            this.setState({records: response.data.records})
-        })
-        .catch(e => {
-            console.log(formatError(e.response.data))
-            this.setState({error: formatError(e.response.data), message: ''});
-        })
-    }
-
-    componentDidMount() {
-        this.getData()
     }
 
     handleAddClick = (e) => {
@@ -39,17 +23,16 @@ class RepoList extends Component {
         this.setState({showAdd: false})
     }
 
-    handleRepoAddClick = (e) => {
+    handleRepoChange = (e) => {
         e.preventDefault()
-        this.getData()
+        this.setState({repo: e.target.value})
     }
 
-    handleBuildClick = (e) => {
+    handleRepoCreate = (e) => {
         e.preventDefault()
-        let repoId = e.target.getAttribute('data-key')
-
-        api.build(repoId).then(response => {
-            this.props.onClick()
+        api.repoCreate(this.state.repo).then(response => {
+            this.props.onCreate()
+            this.setState({error:'', showAdd: false})
         })
         .catch(e => {
             console.log(formatError(e.response.data))
@@ -58,7 +41,7 @@ class RepoList extends Component {
     }
 
     render() {
-        let data = this.state.records.map(r => {
+        let data = this.props.records.map(r => {
             return {
                 columns:[
                     {content: r.name, role: 'rowheader'},
@@ -66,7 +49,7 @@ class RepoList extends Component {
                     {content: r.hash},
                     {content: r.created},
                     {content: r.modified},
-                    {content: <Button data-key={r.id} onClick={this.handleBuildClick}>{T('build')}</Button>}
+                    {content: <Button data-key={r.id} onClick={this.props.onBuild}>{T('build')}</Button>}
                     ],
             }
         })
@@ -81,7 +64,7 @@ class RepoList extends Component {
                         </Button>
                     </div>
                     {this.state.showAdd ?
-                        <RepoAdd onClick={this.handleRepoAddClick} onCancel={this.handleCancelClick}/>
+                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick} onChange={this.handleRepoChange} repo={this.state.repo}/>
                         :
                         ''
                     }

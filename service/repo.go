@@ -11,7 +11,7 @@ func (bld *BuildService) RepoCreate(repo string) (string, error) {
 	name := nameFromRepo(repo)
 	repoID, err := bld.Datastore.RepoCreate(name, repo)
 	if err != nil {
-		return repoID, fmt.Errorf("error storing build request: %v", err)
+		return repoID, fmt.Errorf("error storing repo: %v", err)
 	}
 
 	return repoID, nil
