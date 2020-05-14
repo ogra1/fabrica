@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Build the project
+# RepoAdd the project
 npm run build
 
 # Create the static directory

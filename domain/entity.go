@@ -2,7 +2,17 @@ package domain
 
 import "time"
 
-// Build is the requested build
+// Repo is the requested repository to watch
+type Repo struct {
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Repo       string    `json:"repo"`
+	LastCommit string    `json:"hash"`
+	Created    time.Time `json:"created"`
+	Modified   time.Time `json:"modified"`
+}
+
+// RepoAdd is the requested build
 type Build struct {
 	ID       string     `json:"id"`
 	Name     string     `json:"name"`

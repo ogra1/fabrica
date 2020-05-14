@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Header from "./components/Header";
-import BuildList from "./components/BuildList";
+import Home from "./components/Home";
 import {parseRoute} from "./components/Utils";
 import BuildLog from "./components/BuildLog";
 //import createHistory from 'history/createBrowserHistory'
@@ -20,7 +20,7 @@ class App extends Component {
             <div>
                 <Header/>
 
-                {r.section===''? <BuildList/> : ''}
+                {r.section===''? <Home/> : ''}
                 {r.section==='builds'? <BuildLog buildId={r.sectionId} /> : ''}
 
             </div>

@@ -1,43 +1,12 @@
 import React, {Component} from 'react';
-import api from "./api";
-import {formatError, T} from "./Utils";
+import {T} from "./Utils";
 import {MainTable, Row} from "@canonical/react-components";
-import Build from "./Build";
 import BuildStatus from "./BuildStatus";
 import BuildActions from "./BuildActions";
 
 class BuildList extends Component {
-    constructor(props) {
-        super(props)
-        this.state = {
-            builds: [],
-            expanded: false,
-            expandedContent: null,
-        }
-    }
-
-    getData() {
-        api.buildList().then(response => {
-            this.setState({builds: response.data.records})
-        })
-        .catch(e => {
-            console.log(formatError(e.response.data))
-            this.setState({error: formatError(e.response.data), message: ''});
-        })
-    }
-
-    componentDidMount() {
-        this.getData()
-    }
-
-    handleBuildClick = (e) => {
-        e.preventDefault()
-        this.getData()
-    }
-
     render() {
-
-        let data = this.state.builds.map(r => {
+        let data = this.props.records.map(r => {
             return {
                 columns:[
                     {content: r.name, role: 'rowheader'},
@@ -50,9 +19,10 @@ class BuildList extends Component {
         })
 
         return (
-            <div>
-                <Build onClick={this.handleBuildClick} />
+            <section>
+
                 <Row>
+                    <h3>{T('build-requests')}</h3>
                     <MainTable headers={[
                     {
                         content: T('name')
@@ -69,7 +39,7 @@ class BuildList extends Component {
                         className: "u-align--center"
                     }]} rows={data} />
                 </Row>
-            </div>
+            </section>
         );
     }
 }
