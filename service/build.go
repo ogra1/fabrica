@@ -25,6 +25,8 @@ type BuildSrv interface {
 	Build(repo string) (string, error)
 	List() ([]domain.Build, error)
 	BuildGet(id string) (domain.Build, error)
+	RepoCreate(repo string) (string, error)
+	RepoList() ([]domain.Repo, error)
 }
 
 // BuildService implements a build service

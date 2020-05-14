@@ -41,6 +41,9 @@ func NewDatabase() (*DB, error) {
 
 // CreateTables creates the database tables
 func (db *DB) CreateTables() error {
+	if _, err := db.Exec(createRepoTableSQL); err != nil {
+		return err
+	}
 	if _, err := db.Exec(createBuildTableSQL); err != nil {
 		return err
 	}
