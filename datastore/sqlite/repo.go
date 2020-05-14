@@ -19,7 +19,7 @@ const createRepoTableSQL string = `
 `
 
 const addRepoSQL = `
-	INSERT INTO repo (id, name, repo) VALUES ($1, $2, $3)
+	INSERT INTO repo (id, name, location) VALUES ($1, $2, $3)
 `
 const listRepoSQL = `
 	SELECT id, name, location, hash, created, modified
