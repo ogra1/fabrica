@@ -3,6 +3,7 @@ package repo
 import (
 	"bufio"
 	"fmt"
+	"github.com/go-git/go-git/v5"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
 	"gopkg.in/yaml.v2"
@@ -158,24 +159,38 @@ func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 	// Clone the repo
 	p := getPath(r.ID)
 	log.Println("git", "clone", "--depth", "1", r.Repo, p)
-	o, err := exec.Command("git", "clone", "--depth", "1", r.Repo, p).Output()
-	if err != nil {
-		log.Println("Clone:", string(o))
-		return "", "", err
-	}
+
+	gitRepo, err := git.PlainClone(p, false, &git.CloneOptions{
+		URL:      r.Repo,
+		Depth:    1,
+		Progress: os.Stdout,
+	})
+
+	//o, err := exec.Command("git", "clone", "--depth", "1", r.Repo, p).Output()
+	//if err != nil {
+	//	log.Println("Clone:", string(o))
+	//	return "", "", err
+	//}
 
 	// Get the last commit hash
-	out, err := exec.Command("git", "ls-remote", "--heads", p).Output()
+	ref, err := gitRepo.Head()
 	if err != nil {
 		return "", "", err
 	}
-	refs := strings.Split(string(out), " ")
-	return p, refs[0], nil
+	return p, ref.Hash().String(), nil
+
+	//out, err := exec.Command("git", "ls-remote", "--heads", p).Output()
+	//if err != nil {
+	//	return "", "", err
+	//}
+	//refs := strings.Split(string(out), " ")
+	//return p, refs[0], nil
 }
 
 func (bld *BuildService) findSnapcraftYAML(p string) (string, error) {
 	// Check the root directory for snapcraft.yaml
 	f := path.Join(p, "snapcraft.yaml")
+	log.Println("Checking path:", f)
 	_, err := os.Stat(f)
 	if os.IsExist(err) {
 		return f, nil
@@ -183,6 +198,7 @@ func (bld *BuildService) findSnapcraftYAML(p string) (string, error) {
 
 	// Check the root directory for snapcraft.yaml
 	f = path.Join(p, "snap", "snapcraft.yaml")
+	log.Println("Checking path:", f)
 	_, err = os.Stat(f)
 	if os.IsExist(err) {
 		return f, nil
