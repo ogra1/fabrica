@@ -4,18 +4,18 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/ogra1/fabrica/config"
-	"github.com/ogra1/fabrica/service"
+	"github.com/ogra1/fabrica/service/repo"
 	"net/http"
 )
 
 // Web implements the web service
 type Web struct {
 	Settings *config.Settings
-	BuildSrv service.BuildSrv
+	BuildSrv repo.BuildSrv
 }
 
 // NewWebService starts a new web service
-func NewWebService(settings *config.Settings, bldSrv service.BuildSrv) *Web {
+func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv) *Web {
 	return &Web{
 		Settings: settings,
 		BuildSrv: bldSrv,

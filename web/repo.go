@@ -21,7 +21,7 @@ func (srv Web) RepoCreate(w http.ResponseWriter, r *http.Request) {
 
 // RepoList lists the watched repos
 func (srv Web) RepoList(w http.ResponseWriter, r *http.Request) {
-	records, err := srv.BuildSrv.RepoList()
+	records, err := srv.BuildSrv.RepoList(false)
 	if err != nil {
 		formatStandardResponse("list", err.Error(), w)
 		return
