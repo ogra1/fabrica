@@ -71,20 +71,25 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	// Clone the repo and get the last commit tag
 	repoPath, hash, err := bld.cloneRepo(repo)
 	if err != nil {
+		log.Println("Cloning repository:", err)
 		return err
 	}
+	log.Printf("Cloned repo: %s (%s)\n", repoPath, hash)
 	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Cloned repo: %s (%s)\n", repoPath, hash))
 
 	// Find the snapcraft.yaml file
 	f, err := bld.findSnapcraftYAML(repoPath)
 	if err != nil {
+		log.Println("Find snapcraft.yaml:", err)
 		return err
 	}
+	log.Printf("snapcraft.yaml: %s\n", f)
 	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("snapcraft.yaml: %s\n", f))
 
 	// Get the distro from looking at the `base` keyword
 	distro, err := bld.getDistroFromYAML(f)
 	if err != nil {
+		log.Println("Get distro:", err)
 		return err
 	}
 	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Distro: %s\n", f))
@@ -92,6 +97,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	// Run the build via the python script
 	cmd, err := bld.runBuild(repo, buildID, distro, err)
 	if err != nil {
+		log.Println("Run build:", err)
 		return err
 	}
 
@@ -151,6 +157,7 @@ func (bld *BuildService) runBuild(repo domain.Repo, buildID string, distro strin
 func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 	// Clone the repo
 	p := getPath(r.ID)
+	log.Println("git", "clone", "--depth", "1", r.Repo, p)
 	_, err := exec.Command("git", "clone", "--depth", "1", r.Repo, p).Output()
 	if err != nil {
 		return "", "", err

@@ -1,8 +1,8 @@
 package sqlite
 
 import (
-	"github.com/rs/xid"
 	"github.com/ogra1/fabrica/domain"
+	"github.com/rs/xid"
 )
 
 const createBuildLogTableSQL string = `
