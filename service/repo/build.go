@@ -160,9 +160,8 @@ func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 	p := getPath(r.ID)
 	log.Println("git", "clone", "--depth", "1", r.Repo, p)
 	gitRepo, err := git.PlainClone(p, false, &git.CloneOptions{
-		URL:      r.Repo,
-		Depth:    1,
-		Progress: os.Stdout,
+		URL:   r.Repo,
+		Depth: 1,
 	})
 
 	// Get the last commit hash
@@ -201,7 +200,7 @@ func (bld *BuildService) getDistroFromYAML(f string) (string, error) {
 	}
 
 	keys := map[string]interface{}{}
-	if err := yaml.Unmarshal(data, data); err != nil {
+	if err := yaml.Unmarshal(data, &keys); err != nil {
 		return "", err
 	}
 
