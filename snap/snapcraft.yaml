@@ -114,21 +114,3 @@ parts:
     plugin: dump
     organize:
       "*": /bin/
-
-#  git:
-#    source: https://github.com/git/git
-#    source-type: git
-#    source-tag: v2.26.2
-#    source-depth: 1
-#    plugin: autotools
-#    configflags:
-#      - --with-curl
-#      - --with-expat
-#    build-packages:
-#      - gettext
-#      - libssl-dev
-#      - libexpat1-dev
-#      - zlib1g-dev
-#    stage-packages:
-#      - gettext
-#      - libcurl4-openssl-dev

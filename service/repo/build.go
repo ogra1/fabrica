@@ -159,32 +159,19 @@ func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 	// Clone the repo
 	p := getPath(r.ID)
 	log.Println("git", "clone", "--depth", "1", r.Repo, p)
-
 	gitRepo, err := git.PlainClone(p, false, &git.CloneOptions{
 		URL:      r.Repo,
 		Depth:    1,
 		Progress: os.Stdout,
 	})
 
-	//o, err := exec.Command("git", "clone", "--depth", "1", r.Repo, p).Output()
-	//if err != nil {
-	//	log.Println("Clone:", string(o))
-	//	return "", "", err
-	//}
-
 	// Get the last commit hash
+	log.Println("git", "ls-remote", "--heads", p)
 	ref, err := gitRepo.Head()
 	if err != nil {
 		return "", "", err
 	}
 	return p, ref.Hash().String(), nil
-
-	//out, err := exec.Command("git", "ls-remote", "--heads", p).Output()
-	//if err != nil {
-	//	return "", "", err
-	//}
-	//refs := strings.Split(string(out), " ")
-	//return p, refs[0], nil
 }
 
 func (bld *BuildService) findSnapcraftYAML(p string) (string, error) {
@@ -192,7 +179,7 @@ func (bld *BuildService) findSnapcraftYAML(p string) (string, error) {
 	f := path.Join(p, "snapcraft.yaml")
 	log.Println("Checking path:", f)
 	_, err := os.Stat(f)
-	if os.IsExist(err) {
+	if err == nil {
 		return f, nil
 	}
 
@@ -200,7 +187,7 @@ func (bld *BuildService) findSnapcraftYAML(p string) (string, error) {
 	f = path.Join(p, "snap", "snapcraft.yaml")
 	log.Println("Checking path:", f)
 	_, err = os.Stat(f)
-	if os.IsExist(err) {
+	if err == nil {
 		return f, nil
 	}
 
