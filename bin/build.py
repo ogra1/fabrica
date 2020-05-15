@@ -108,9 +108,10 @@ def main():
     try:
         tree = sys.argv[1]
         build_id = sys.argv[2]
+        distro = sys.argv[3]
         cname, dir = parse_args(tree)
 
-        container = launch_container(cname, 'bionic')
+        container = launch_container(cname, distro)
 
         prepare = [['apt', 'update'],
                    ['apt', '-y', 'upgrade'],

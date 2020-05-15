@@ -1,6 +1,6 @@
 name: fabrica
 base: core18
-version: '0.5'
+version: '0.6'
 summary: RepoAdd snaps by simply pointing a web form to a git tree
 description: |
   Fabrica is a web service to be run on an lxd appliance. It spawns a
@@ -35,6 +35,15 @@ apps:
       - network
       - network-bind
       - system-observe
+  watch:
+    command: bin/watch
+    daemon: simple
+    plugs:
+      - lxd
+      - mount-observe
+      - network
+      - network-bind
+      - system-observe
 
 parts:
   react:
@@ -54,7 +63,6 @@ parts:
       npm install
       npm run build
 
-      
       mkdir -p $SNAPCRAFT_PART_INSTALL/static/
       cp -r build/static/css $SNAPCRAFT_PART_INSTALL/static/
       cp -r build/static/js $SNAPCRAFT_PART_INSTALL/static/
@@ -87,6 +95,9 @@ parts:
     source-type: git
     build-packages:
       - gcc
+    stage-packages:
+      - git
+      - libcurl4-openssl-dev
 
   bin:
     source: snap/local

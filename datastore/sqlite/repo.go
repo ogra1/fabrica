@@ -26,6 +26,11 @@ const listRepoSQL = `
 	FROM repo
 	ORDER BY name, location
 `
+const listRepoWatchSQL = `
+	SELECT id, name, location, hash, created, modified
+	FROM repo
+	ORDER BY modified
+`
 const updateRepoHashSQL = `
 	UPDATE repo SET hash=$1, modified=current_timestamp WHERE id=$2
 `
@@ -43,9 +48,15 @@ func (db *DB) RepoCreate(name, repo string) (string, error) {
 }
 
 // RepoList get the list of repos
-func (db *DB) RepoList() ([]domain.Repo, error) {
+func (db *DB) RepoList(watch bool) ([]domain.Repo, error) {
+	// Order the list depending on use
+	sql := listRepoSQL
+	if watch {
+		sql = listRepoWatchSQL
+	}
+
 	records := []domain.Repo{}
-	rows, err := db.Query(listRepoSQL)
+	rows, err := db.Query(sql)
 	if err != nil {
 		return records, err
 	}

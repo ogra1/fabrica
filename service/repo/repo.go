@@ -1,4 +1,4 @@
-package service
+package repo
 
 import (
 	"fmt"
@@ -18,6 +18,6 @@ func (bld *BuildService) RepoCreate(repo string) (string, error) {
 }
 
 // RepoList returns a list of repos
-func (bld *BuildService) RepoList() ([]domain.Repo, error) {
-	return bld.Datastore.RepoList()
+func (bld *BuildService) RepoList(watch bool) ([]domain.Repo, error) {
+	return bld.Datastore.RepoList(watch)
 }
