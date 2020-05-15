@@ -6,4 +6,4 @@ export GIT_EXEC_PATH=$SNAP/libexec/git-core
 export GIT_TEXTDOMAINDIR=$SNAP/usr/share/locale
 
 cd $SNAP
-bin/fabrica
+bin/fabrica -mode watch

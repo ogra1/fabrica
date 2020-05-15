@@ -158,8 +158,9 @@ func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 	// Clone the repo
 	p := getPath(r.ID)
 	log.Println("git", "clone", "--depth", "1", r.Repo, p)
-	_, err := exec.Command("git", "clone", "--depth", "1", r.Repo, p).Output()
+	o, err := exec.Command("git", "clone", "--depth", "1", r.Repo, p).Output()
 	if err != nil {
+		log.Println("Clone:", string(o))
 		return "", "", err
 	}
 
