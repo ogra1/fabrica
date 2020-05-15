@@ -14,7 +14,8 @@ const createBuildTableSQL string = `
 		repo             varchar(200) not null,
 		status           varchar(20) default '',
 		created          timestamp default current_timestamp,
-        download         varchar(20) default ''
+        download         varchar(20) default '',
+		duration         int default 0
 	)
 `
 
@@ -22,6 +23,9 @@ const addBuildSQL = `
 	INSERT INTO build (id, name, repo) VALUES ($1, $2, $3)
 `
 const updateBuildSQL = `
+	UPDATE build SET status=$1,duration=$2 WHERE id=$3
+`
+const updateBuildStatusSQL = `
 	UPDATE build SET status=$1 WHERE id=$2
 `
 const updateBuildDownloadSQL = `
@@ -46,8 +50,13 @@ func (db *DB) BuildCreate(name, repo string) (string, error) {
 }
 
 // BuildUpdate updates a build request
-func (db *DB) BuildUpdate(id, status string) error {
-	_, err := db.Exec(updateBuildSQL, status, id)
+func (db *DB) BuildUpdate(id, status string, duration int) error {
+	if duration == 0 {
+		_, err := db.Exec(updateBuildStatusSQL, status, id)
+		return err
+	}
+
+	_, err := db.Exec(updateBuildSQL, status, duration, id)
 	return err
 }
 

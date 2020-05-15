@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+	"time"
 )
 
 const (
@@ -66,13 +67,16 @@ func (bld *BuildService) Build(repoID string) (string, error) {
 }
 
 func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
+	start := time.Now()
 	// Update build status
-	_ = bld.Datastore.BuildUpdate(buildID, statusInProgress)
+	_ = bld.Datastore.BuildUpdate(buildID, statusInProgress, 0)
 
 	// Clone the repo and get the last commit tag
 	repoPath, hash, err := bld.cloneRepo(repo)
 	if err != nil {
 		log.Println("Cloning repository:", err)
+		duration := time.Now().Sub(start).Seconds()
+		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
 	}
 	log.Printf("Cloned repo: %s (%s)\n", repoPath, hash)
@@ -82,6 +86,8 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	f, err := bld.findSnapcraftYAML(repoPath)
 	if err != nil {
 		log.Println("Find snapcraft.yaml:", err)
+		duration := time.Now().Sub(start).Seconds()
+		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
 	}
 	log.Printf("snapcraft.yaml: %s\n", f)
@@ -91,6 +97,8 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	distro, err := bld.getDistroFromYAML(f)
 	if err != nil {
 		log.Println("Get distro:", err)
+		duration := time.Now().Sub(start).Seconds()
+		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
 	}
 	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Distro: %s\n", distro))
@@ -99,11 +107,14 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	cmd, err := bld.runBuild(repo, buildID, distro, err)
 	if err != nil {
 		log.Println("Run build:", err)
+		duration := time.Now().Sub(start).Seconds()
+		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
 	}
 
 	if err := cmd.Wait(); err != nil {
-		_ = bld.Datastore.BuildUpdate(buildID, statusFailed)
+		duration := time.Now().Sub(start).Seconds()
+		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		log.Println(err)
 		return err
 	}
@@ -112,7 +123,8 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	_ = bld.Datastore.RepoUpdateHash(repo.ID, hash)
 
 	// Mark the build as complete
-	_ = bld.Datastore.BuildUpdate(buildID, statusComplete)
+	duration := time.Now().Sub(start).Seconds()
+	_ = bld.Datastore.BuildUpdate(buildID, statusComplete, int(duration))
 	return nil
 }
 
@@ -128,14 +140,14 @@ func (bld *BuildService) runBuild(repo domain.Repo, buildID string, distro strin
 	}
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		_ = bld.Datastore.BuildUpdate(buildID, statusFailed)
+		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, 0)
 		log.Println(err)
 		return nil, err
 	}
 
 	// Start the build
 	if err := cmd.Start(); err != nil {
-		_ = bld.Datastore.BuildUpdate(buildID, statusFailed)
+		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, 0)
 		log.Println(err)
 		return nil, err
 	}
@@ -143,7 +155,7 @@ func (bld *BuildService) runBuild(repo domain.Repo, buildID string, distro strin
 	s := bufio.NewScanner(io.MultiReader(stdout, stderr))
 	for s.Scan() {
 		if err := bld.Datastore.BuildLogCreate(buildID, s.Text()); err != nil {
-			_ = bld.Datastore.BuildUpdate(buildID, statusFailed)
+			_ = bld.Datastore.BuildUpdate(buildID, statusFailed, 0)
 			return nil, fmt.Errorf("error storing log: %v", err)
 		}
 
