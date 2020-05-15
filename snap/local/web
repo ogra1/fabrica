@@ -1,9 +1,4 @@
 #!/bin/sh
 
-export GIT_TEMPLATE_DIR=$SNAP/share/git-core/templates
-export GIT_CONFIG_NOSYSTEM="true"
-export GIT_EXEC_PATH=$SNAP/libexec/git-core
-export GIT_TEXTDOMAINDIR=$SNAP/usr/share/locale
-
 cd $SNAP
 bin/fabrica

@@ -93,7 +93,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 		log.Println("Get distro:", err)
 		return err
 	}
-	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Distro: %s\n", f))
+	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Distro: %s\n", distro))
 
 	// Run the build via the python script
 	cmd, err := bld.runBuild(repo, buildID, distro, err)

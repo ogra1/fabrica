@@ -35,11 +35,6 @@ apps:
       - network
       - network-bind
       - system-observe
-    environment:
-      GIT_TEMPLATE_DIR: $SNAP/share/git-core/templates
-      GIT_CONFIG_NOSYSTEM: "true"
-      GIT_EXEC_PATH: $SNAP/libexec/git-core
-      GIT_TEXTDOMAINDIR: $SNAP/usr/share/locale
   watch:
     command: bin/watch
     daemon: simple
@@ -49,11 +44,6 @@ apps:
       - network
       - network-bind
       - system-observe
-    environment:
-      GIT_TEMPLATE_DIR: $SNAP/share/git-core/templates
-      GIT_CONFIG_NOSYSTEM: "true"
-      GIT_EXEC_PATH: $SNAP/libexec/git-core
-      GIT_TEXTDOMAINDIR: $SNAP/usr/share/locale
 
 parts:
   react:
