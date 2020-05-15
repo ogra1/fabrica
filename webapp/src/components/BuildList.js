@@ -13,7 +13,8 @@ class BuildList extends Component {
                     {content: r.repo},
                     {content: r.created},
                     {content: <BuildStatus status={r.status} />},
-                    {content: <BuildActions id={r.id} download={r.download}/>}
+                    {content: r.duration, className: "col-medium u-align--right"},
+                    {content: <BuildActions id={r.id} download={r.download}/>, className: "u-align--center"}
                     ],
             }
         })
@@ -27,16 +28,15 @@ class BuildList extends Component {
                     {
                         content: T('name')
                     }, {
-                        content: T('repo'),
-                        className: "col-large"
+                        content: T('repo'), className: "col-large"
                     }, {
                         content: T('created'),
                     }, {
-                        content: T('status'),
-                        className: "u-align--center col-small"
+                        content: T('status'), className: "u-align--center col-small"
                     }, {
-                        content: T('actions'),
-                        className: "u-align--center"
+                        content: T('duration'), className: "col-medium u-align--right",
+                    }, {
+                        content: T('actions'), className: "u-align--center"
                     }]} rows={data} />
                 </Row>
             </section>

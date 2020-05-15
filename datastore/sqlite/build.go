@@ -32,7 +32,7 @@ const updateBuildDownloadSQL = `
 	UPDATE build SET download=$1 WHERE id=$2
 `
 const listBuildSQL = `
-	SELECT id, name, repo, status, created, download
+	SELECT id, name, repo, status, created, download, duration
 	FROM build
 	ORDER BY created DESC
 `
@@ -77,7 +77,7 @@ func (db *DB) BuildList() ([]domain.Build, error) {
 
 	for rows.Next() {
 		r := domain.Build{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Duration)
 		if err != nil {
 			return logs, err
 		}
