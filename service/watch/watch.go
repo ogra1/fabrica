@@ -1,12 +1,14 @@
 package watch
 
 import (
+	"fmt"
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
 	"github.com/ogra1/fabrica/service/repo"
 	"log"
-	"os/exec"
-	"strings"
 	"time"
 )
 
@@ -79,11 +81,22 @@ func (srv *Service) Watch() {
 
 func (srv *Service) checkForUpdates(r domain.Repo) (string, bool, error) {
 	// Get the last commit hash
-	out, err := exec.Command("git", "ls-remote", "--heads", r.Repo).Output()
+	log.Println("git", "ls-remote", "--heads", r.Repo)
+	rem := git.NewRemote(memory.NewStorage(), &config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{r.Repo},
+	})
+
+	// We can then use every Remote functions to retrieve wanted information
+	refs, err := rem.List(&git.ListOptions{})
 	if err != nil {
 		return "", false, err
 	}
-	refs := strings.Split(string(out), " ")
 
-	return refs[0], r.LastCommit != refs[0], nil
+	for _, ref := range refs {
+		if ref.Name().IsBranch() {
+			return ref.Hash().String(), r.LastCommit != ref.Hash().String(), nil
+		}
+	}
+	return "", false, fmt.Errorf("cannot find the repo HEAD")
 }
