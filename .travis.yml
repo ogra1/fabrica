@@ -1,6 +1,6 @@
-language: python
-python:
-  - "3.6"
+language: go
+go:
+  - 1.14.x
 dist: bionic
 addons:
   snaps:
@@ -11,10 +11,15 @@ env:
   global:
     - LC_ALL=C.UTF-8
     - LANG=C.UTF-8
+    - GO111MODULE=on
 
 install:
   - sudo sed -i '/^deb/s/$/ universe/' /etc/apt/sources.list
   - sudo apt-get update
 
+before_script:
+  - npm install --unsafe-perm -g node-sass
+
 script:
   - sudo snapcraft --destructive-mode
+  
