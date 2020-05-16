@@ -14,7 +14,8 @@ const createBuildTableSQL string = `
 		repo             varchar(200) not null,
 		status           varchar(20) default '',
 		created          timestamp default current_timestamp,
-        download         varchar(20) default ''
+        download         varchar(20) default '',
+		duration         int default 0
 	)
 `
 
@@ -22,13 +23,16 @@ const addBuildSQL = `
 	INSERT INTO build (id, name, repo) VALUES ($1, $2, $3)
 `
 const updateBuildSQL = `
+	UPDATE build SET status=$1,duration=$2 WHERE id=$3
+`
+const updateBuildStatusSQL = `
 	UPDATE build SET status=$1 WHERE id=$2
 `
 const updateBuildDownloadSQL = `
 	UPDATE build SET download=$1 WHERE id=$2
 `
 const listBuildSQL = `
-	SELECT id, name, repo, status, created, download
+	SELECT id, name, repo, status, created, download, duration
 	FROM build
 	ORDER BY created DESC
 `
@@ -46,8 +50,13 @@ func (db *DB) BuildCreate(name, repo string) (string, error) {
 }
 
 // BuildUpdate updates a build request
-func (db *DB) BuildUpdate(id, status string) error {
-	_, err := db.Exec(updateBuildSQL, status, id)
+func (db *DB) BuildUpdate(id, status string, duration int) error {
+	if duration == 0 {
+		_, err := db.Exec(updateBuildStatusSQL, status, id)
+		return err
+	}
+
+	_, err := db.Exec(updateBuildSQL, status, duration, id)
 	return err
 }
 
@@ -68,7 +77,7 @@ func (db *DB) BuildList() ([]domain.Build, error) {
 
 	for rows.Next() {
 		r := domain.Build{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Duration)
 		if err != nil {
 			return logs, err
 		}

@@ -12,13 +12,14 @@ type Repo struct {
 	Modified   time.Time `json:"modified"`
 }
 
-// RepoAdd is the requested build
+// Build is the requested build
 type Build struct {
 	ID       string     `json:"id"`
 	Name     string     `json:"name"`
 	Repo     string     `json:"repo"`
 	Status   string     `json:"status"`
 	Download string     `json:"download"`
+	Duration int        `json:"duration"`
 	Created  time.Time  `json:"created"`
 	Logs     []BuildLog `json:"logs,omitempty"`
 }

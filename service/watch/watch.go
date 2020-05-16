@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	tickInterval = 3000
+	tickInterval = 300
 )
 
 // Srv interface for watching repos
