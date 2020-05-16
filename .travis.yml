@@ -6,12 +6,13 @@ addons:
   snaps:
   - name: snapcraft
     confinement: classic
+  - name: go
+    confinement: classic
 
 env:
   global:
     - LC_ALL=C.UTF-8
     - LANG=C.UTF-8
-    - GO111MODULE=on
 
 install:
   - sudo sed -i '/^deb/s/$/ universe/' /etc/apt/sources.list
