@@ -59,11 +59,21 @@ class Home extends Component {
         })
     }
 
+    handleBuildDelete = (buildId) => {
+        api.buildDelete(buildId).then(response => {
+            this.getDataBuilds()
+        })
+        .catch(e => {
+            console.log(formatError(e.response.data))
+            this.setState({error: formatError(e.response.data), message: ''});
+        })
+    }
+
     render() {
         return (
             <div>
                 <RepoList records={this.state.repos} onBuild={this.handleBuildClick} onCreate={this.handleRepoCreateClick}/>
-                <BuildList records={this.state.builds}/>
+                <BuildList records={this.state.builds} onDelete={this.handleBuildDelete}/>
             </div>
         );
     }

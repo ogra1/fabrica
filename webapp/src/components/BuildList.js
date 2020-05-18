@@ -1,11 +1,62 @@
 import React, {Component} from 'react';
 import {T} from "./Utils";
-import {MainTable, Row} from "@canonical/react-components";
+import {MainTable, Row, Modal} from "@canonical/react-components";
 import BuildStatus from "./BuildStatus";
 import BuildActions from "./BuildActions";
 import moment from "moment";
 
 class BuildList extends Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            confirmDelete: false,
+            delete: {},
+        }
+    }
+
+    handleCancelDelete = (e) => {
+        e.preventDefault()
+        this.setState({confirmDelete: false, delete: {}})
+    }
+
+    handleConfirmDelete = (e) => {
+        e.preventDefault()
+        let id = e.target.getAttribute('data-key')
+        let buildIds = this.props.records.filter(rec => {
+            return rec.id === id
+        })
+
+        if (buildIds.length>0) {
+            this.props.onDelete(id)
+            this.setState({confirmDelete: true, delete: buildIds[0]})
+        }
+    }
+
+    handleDoDelete = (e) => {
+        e.preventDefault()
+
+        this.setState({confirmDelete: false, delete: {}})
+    }
+
+    renderConfirmDelete() {
+        return (
+                <Modal close={this.handleCancelDelete} title={T('confirm-delete')}>
+                    <p>
+                        {T('confirm-delete-message') + this.state.delete.name + ' (' + this.state.delete.created  +')'}
+                    </p>
+                    <hr />
+                    <div className="u-align--right">
+                        <button onClick={this.handleCancelDelete} className="u-no-margin--bottom">
+                            {T('cancel')}
+                        </button>
+                        <button className="p-button--negative u-no-margin--bottom" onClick={this.handleDoDelete} >
+                            {T('delete')}
+                        </button>
+                    </div>
+                </Modal>
+        )
+    }
+
     render() {
         let data = this.props.records.map(r => {
             let dur =  moment.duration(r.duration,'seconds').minutes() + ' minutes'
@@ -19,14 +70,16 @@ class BuildList extends Component {
                     {content: r.repo},
                     {content: r.created},
                     {content: <BuildStatus status={r.status} />},
-                    {content: dur, className: "col-medium u-align--right"},
-                    {content: <BuildActions id={r.id} download={r.download}/>, className: "u-align--center"}
+                    {content: dur, className: "col-medium u-align--left"},
+                    {content: <BuildActions id={r.id} download={r.download} onConfirmDelete={this.handleConfirmDelete}/>, className: "col-medium u-align--left"}
                     ],
             }
         })
 
         return (
             <section>
+
+                {this.state.confirmDelete ? this.renderConfirmDelete() : ''}
 
                 <Row>
                     <h3>{T('build-requests')}</h3>
@@ -40,9 +93,9 @@ class BuildList extends Component {
                     }, {
                         content: T('status'), className: "u-align--center col-small"
                     }, {
-                        content: T('duration'), className: "col-medium u-align--right",
+                        content: T('duration'), className: "col-medium u-align--left",
                     }, {
-                        content: T('actions'), className: "u-align--center"
+                        content: T('actions'), className: "col-medium u-align--left"
                     }]} rows={data} />
                 </Row>
             </section>

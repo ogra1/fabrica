@@ -15,6 +15,9 @@ function BuildActions(props) {
                 :
                 ''
             }
+            <Link href="" title={T("delete")} onClick={props.onConfirmDelete}>
+                <img className="action" src="/static/images/delete.svg" alt={T("delete")} data-key={props.id}/>
+            </Link>
         </div>
     );
 }

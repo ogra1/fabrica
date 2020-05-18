@@ -14,6 +14,10 @@ let service = {
         return axios.get(constants.baseUrl + 'builds/' + buildId);
     },
 
+    buildDelete: (buildId, cancelCallback) => {
+        return axios.delete(constants.baseUrl + 'builds/' + buildId);
+    },
+
     repoList: (cancelCallback) => {
         return axios.get(constants.baseUrl + 'repos');
     },
