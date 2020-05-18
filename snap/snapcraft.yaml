@@ -86,6 +86,8 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp bin/init.py $SNAPCRAFT_PART_INSTALL/bin/
       cp bin/build.py $SNAPCRAFT_PART_INSTALL/bin/
+    build-packages:
+      - python-minimal
     stage-packages:
       - python3-websockets
 
