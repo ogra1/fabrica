@@ -30,6 +30,7 @@ type BuildSrv interface {
 	Build(repo string) (string, error)
 	List() ([]domain.Build, error)
 	BuildGet(id string) (domain.Build, error)
+	BuildDelete(id string) error
 	RepoCreate(repo string) (string, error)
 	RepoList(watch bool) ([]domain.Repo, error)
 }
@@ -239,16 +240,6 @@ func (bld *BuildService) checkForDownloadFile(buildID, message string) {
 	if err := bld.Datastore.BuildUpdateDownload(buildID, p); err != nil {
 		log.Println("Error storing download path:", err)
 	}
-}
-
-// List returns a list of the builds that have been requested
-func (bld *BuildService) List() ([]domain.Build, error) {
-	return bld.Datastore.BuildList()
-}
-
-// BuildGet returns a build with its logs
-func (bld *BuildService) BuildGet(id string) (domain.Build, error) {
-	return bld.Datastore.BuildGet(id)
 }
 
 func nameFromRepo(repo string) string {

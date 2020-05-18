@@ -2,6 +2,7 @@ package web
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"io"
 	"net/http"
 )
@@ -36,6 +37,18 @@ func (srv Web) BuildList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	formatRecordsResponse(builds, w)
+}
+
+// BuildDelete deletes a build with its logs
+func (srv Web) BuildDelete(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	err := srv.BuildSrv.BuildDelete(vars["id"])
+	if err != nil {
+		formatStandardResponse("logs", err.Error(), w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
 }
 
 func (srv Web) decodeBuildRequest(w http.ResponseWriter, r *http.Request) *buildRequest {
