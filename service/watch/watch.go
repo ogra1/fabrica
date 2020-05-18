@@ -75,6 +75,9 @@ func (srv *Service) Watch() {
 
 			// update the last commit hash
 			srv.Datastore.RepoUpdateHash(r.ID, hash)
+
+			// Don't process any more repos until the next cycle
+			break
 		}
 	}
 	ticker.Stop()
