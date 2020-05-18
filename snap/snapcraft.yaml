@@ -70,6 +70,9 @@ parts:
       cp build/* $SNAPCRAFT_PART_INSTALL/static/ || :
     build-packages:
       - curl
+      - python-minimal
+      - python-dev
+
 
   pylxd:
     plugin: python
@@ -86,8 +89,6 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp bin/init.py $SNAPCRAFT_PART_INSTALL/bin/
       cp bin/build.py $SNAPCRAFT_PART_INSTALL/bin/
-    build-packages:
-      - python-minimal
     stage-packages:
       - python3-websockets
 
