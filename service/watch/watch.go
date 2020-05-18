@@ -56,6 +56,7 @@ func (srv *Service) Watch() {
 		}
 
 		for _, r := range records {
+			log.Println("Check repo:", r.Repo)
 			// check for an update
 			hash, update, err := srv.checkForUpdates(r)
 			if err != nil {

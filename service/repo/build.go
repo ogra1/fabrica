@@ -176,6 +176,10 @@ func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 		URL:   r.Repo,
 		Depth: 1,
 	})
+	if err != nil {
+		log.Println("Error cloning repo:", err)
+		return "", "", err
+	}
 
 	// Get the last commit hash
 	log.Println("git", "ls-remote", "--heads", p)

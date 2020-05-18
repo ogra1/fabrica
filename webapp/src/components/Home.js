@@ -2,7 +2,8 @@ import React, {Component} from 'react';
 import RepoList from "./RepoList";
 import BuildList from "./BuildList";
 import api from "./api";
-import {formatError} from "./Utils";
+import {T, formatError} from "./Utils";
+import {Notification} from '@canonical/react-components'
 
 class Home extends Component {
     constructor(props) {
@@ -22,6 +23,11 @@ class Home extends Component {
         this.getDataBuilds()
     }
 
+    poll = () => {
+        // Polls every 1s
+        setTimeout(this.getDataBuilds.bind(this), 1000);
+    }
+
     getDataRepos() {
         api.repoList().then(response => {
             this.setState({repos: response.data.records})
@@ -39,6 +45,9 @@ class Home extends Component {
         .catch(e => {
             console.log(formatError(e.response.data))
             this.setState({error: formatError(e.response.data), message: ''});
+        })
+        .finally( ()=> {
+            this.poll()
         })
     }
 
@@ -72,6 +81,13 @@ class Home extends Component {
     render() {
         return (
             <div>
+                {
+                    this.state.error ?
+                        <Notification type="negative" status={T('error') + ':'}>
+                            {this.state.error}
+                        </Notification>
+                        : ''
+                }
                 <RepoList records={this.state.repos} onBuild={this.handleBuildClick} onCreate={this.handleRepoCreateClick}/>
                 <BuildList records={this.state.builds} onDelete={this.handleBuildDelete}/>
             </div>

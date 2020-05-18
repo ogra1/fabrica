@@ -27,7 +27,6 @@ class BuildList extends Component {
         })
 
         if (buildIds.length>0) {
-            this.props.onDelete(id)
             this.setState({confirmDelete: true, delete: buildIds[0]})
         }
     }
@@ -35,6 +34,7 @@ class BuildList extends Component {
     handleDoDelete = (e) => {
         e.preventDefault()
 
+        this.props.onDelete(this.state.delete.id)
         this.setState({confirmDelete: false, delete: {}})
     }
 
