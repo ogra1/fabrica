@@ -23,6 +23,9 @@ const listBuildLogSQL = `
 	WHERE build_id=$1
 	ORDER BY created
 `
+const deleteBuildLogsSQL = `
+	DELETE FROM buildlog WHERE build_id=$1
+`
 
 // BuildLogCreate logs a message for a build
 func (db *DB) BuildLogCreate(buildID, message string) error {
@@ -50,4 +53,10 @@ func (db *DB) BuildLogList(buildID string) ([]domain.BuildLog, error) {
 	}
 
 	return logs, nil
+}
+
+// BuildLogDelete deletes logs for a build
+func (db *DB) BuildLogDelete(buildID string) error {
+	_, err := db.Exec(deleteBuildLogsSQL, buildID)
+	return err
 }

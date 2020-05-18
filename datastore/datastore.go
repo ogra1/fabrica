@@ -9,8 +9,11 @@ type Datastore interface {
 	BuildUpdate(id, status string, duration int) error
 	BuildUpdateDownload(id, download string) error
 	BuildGet(id string) (domain.Build, error)
+	BuildDelete(id string) error
+
 	BuildLogCreate(id, message string) error
 	BuildLogList(id string) ([]domain.BuildLog, error)
+
 	RepoCreate(name, repo string) (string, error)
 	RepoGet(id string) (domain.Repo, error)
 	RepoList(watch bool) ([]domain.Repo, error)

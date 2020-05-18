@@ -56,6 +56,7 @@ func (srv *Service) Watch() {
 		}
 
 		for _, r := range records {
+			log.Println("Check repo:", r.Repo)
 			// check for an update
 			hash, update, err := srv.checkForUpdates(r)
 			if err != nil {
@@ -74,6 +75,9 @@ func (srv *Service) Watch() {
 
 			// update the last commit hash
 			srv.Datastore.RepoUpdateHash(r.ID, hash)
+
+			// Don't process any more repos until the next cycle
+			break
 		}
 	}
 	ticker.Stop()

@@ -30,6 +30,7 @@ type BuildSrv interface {
 	Build(repo string) (string, error)
 	List() ([]domain.Build, error)
 	BuildGet(id string) (domain.Build, error)
+	BuildDelete(id string) error
 	RepoCreate(repo string) (string, error)
 	RepoList(watch bool) ([]domain.Repo, error)
 }
@@ -175,6 +176,10 @@ func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 		URL:   r.Repo,
 		Depth: 1,
 	})
+	if err != nil {
+		log.Println("Error cloning repo:", err)
+		return "", "", err
+	}
 
 	// Get the last commit hash
 	log.Println("git", "ls-remote", "--heads", p)
@@ -239,16 +244,6 @@ func (bld *BuildService) checkForDownloadFile(buildID, message string) {
 	if err := bld.Datastore.BuildUpdateDownload(buildID, p); err != nil {
 		log.Println("Error storing download path:", err)
 	}
-}
-
-// List returns a list of the builds that have been requested
-func (bld *BuildService) List() ([]domain.Build, error) {
-	return bld.Datastore.BuildList()
-}
-
-// BuildGet returns a build with its logs
-func (bld *BuildService) BuildGet(id string) (domain.Build, error) {
-	return bld.Datastore.BuildGet(id)
 }
 
 func nameFromRepo(repo string) string {

@@ -41,6 +41,9 @@ const getBuildSQL = `
 	FROM build
 	WHERE id=$1
 `
+const deleteBuildSQL = `
+	DELETE FROM build WHERE id=$1
+`
 
 // BuildCreate stores a new build request
 func (db *DB) BuildCreate(name, repo string) (string, error) {
@@ -105,4 +108,13 @@ func (db *DB) BuildGet(id string) (domain.Build, error) {
 	}
 	r.Logs = logs
 	return r, nil
+}
+
+// BuildDelete delete a build request and its logs
+func (db *DB) BuildDelete(id string) error {
+	// Delete the logs for this build
+	_ = db.BuildLogDelete(id)
+
+	_, err := db.Exec(deleteBuildSQL, id)
+	return err
 }
