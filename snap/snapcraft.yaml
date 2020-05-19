@@ -1,6 +1,6 @@
 name: fabrica
 base: core18
-version: '0.8'
+version: '0.8.1'
 summary: Build snaps by simply pointing a web form to a git tree
 description: |
   Fabrica is a web service to be run on an lxd appliance. It spawns a
@@ -46,34 +46,6 @@ apps:
       - system-observe
 
 parts:
-  react:
-    plugin: nil
-    source: .
-    override-build: |
-      # Install node and npm
-      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
-      export NVM_DIR="$HOME/.nvm"
-      . "$NVM_DIR/nvm.sh"
-      . "$NVM_DIR/bash_completion"
-
-      nvm install lts/*
-      nvm run node --version
-
-      cd webapp
-      npm install
-      npm run build
-
-      mkdir -p $SNAPCRAFT_PART_INSTALL/static/
-      cp -r build/static/css $SNAPCRAFT_PART_INSTALL/static/
-      cp -r build/static/js $SNAPCRAFT_PART_INSTALL/static/
-      cp -r build/static/images $SNAPCRAFT_PART_INSTALL/static/
-      cp build/* $SNAPCRAFT_PART_INSTALL/static/ || :
-    build-packages:
-      - curl
-      - python-minimal
-      - python-dev
-
-
   pylxd:
     plugin: python
     python-packages:
