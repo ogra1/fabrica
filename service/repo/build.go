@@ -104,19 +104,26 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	}
 	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Distro: %s\n", distro))
 
-	// Run the build via the python script
-	cmd, err := bld.runBuild(repo, buildID, distro, err)
-	if err != nil {
-		log.Println("Run build:", err)
-		duration := time.Now().Sub(start).Seconds()
-		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
-		return err
-	}
+	//// Run the build via the python script
+	//cmd, err := bld.runBuild(repo, buildID, distro, err)
+	//if err != nil {
+	//	log.Println("Run build:", err)
+	//	duration := time.Now().Sub(start).Seconds()
+	//	_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
+	//	return err
+	//}
+	//
+	//if err := cmd.Wait(); err != nil {
+	//	duration := time.Now().Sub(start).Seconds()
+	//	_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
+	//	log.Println(err)
+	//	return err
+	//}
 
-	if err := cmd.Wait(); err != nil {
+	lx := NewLXD(buildID, bld.Datastore)
+	if err := lx.RunBuild(repo.Name, repo.Repo, distro); err != nil {
 		duration := time.Now().Sub(start).Seconds()
 		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
-		log.Println(err)
 		return err
 	}
 
