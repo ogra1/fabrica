@@ -44,7 +44,7 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	lx.Datastore.BuildLogCreate(lx.BuildID, "Creating and starting container")
 
 	// Connect to LXD over the Unix socket
-	c, err := lxd.ConnectLXDUnix("", nil)
+	c, err := lxd.ConnectLXD("http://localhost:8443", nil)
 	if err != nil {
 		log.Println("Error creating/starting container:", err)
 		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
