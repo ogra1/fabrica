@@ -1,11 +1,14 @@
 package repo
 
 import (
+	"fmt"
 	"github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/ogra1/fabrica/datastore"
 	"io"
 	"log"
+	"os"
+	"path"
 	"time"
 )
 
@@ -43,8 +46,16 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	log.Println("Creating and starting container")
 	lx.Datastore.BuildLogCreate(lx.BuildID, "Creating and starting container")
 
+	// Get LXD socket path
+	lxdSocket, err := lxdSocketPath()
+	if err != nil {
+		log.Println("Error with lxd socket:", err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return err
+	}
+
 	// Connect to LXD over the Unix socket
-	c, err := lxd.ConnectLXD("http://localhost:8443", nil)
+	c, err := lxd.ConnectLXDUnix(lxdSocket, nil)
 	if err != nil {
 		log.Println("Error creating/starting container:", err)
 		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
@@ -159,5 +170,22 @@ func (lx *LXD) runInContainer(c lxd.InstanceServer, cname string, command []stri
 }
 
 func containerName(name string) string {
-	return name + "-" + string(time.Now().Unix())
+	return fmt.Sprintf("%s-%d", name, time.Now().Unix())
+}
+
+// lxdSocketPath finds the socket path for LXD
+func lxdSocketPath() (string, error) {
+	var ff = []string{
+		path.Join(os.Getenv("LXD_DIR"), "unix.socket"),
+		"/var/snap/lxd/common/lxd/unix.socket",
+		"/var/lib/lxd/unix.socket",
+	}
+
+	for _, f := range ff {
+		if _, err := os.Stat(f); err == nil {
+			return f, nil
+		}
+	}
+
+	return "", fmt.Errorf("cannot find the LXD socket file")
 }
