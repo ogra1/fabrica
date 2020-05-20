@@ -44,7 +44,7 @@ func NewLXD(buildID string, ds datastore.Datastore) *LXD {
 func (lx *LXD) RunBuild(name, repo, distro string) error {
 	log.Println("Run build:", name, repo, distro)
 	log.Println("Creating and starting container")
-	lx.Datastore.BuildLogCreate(lx.BuildID, "Creating and starting container")
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Creating and starting container")
 
 	// Get LXD socket path
 	lxdSocket, err := lxdSocketPath()
@@ -66,6 +66,7 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	cname := containerName(name)
 
 	// Create and start the LXD
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Create container "+cname)
 	if err := lx.createAndStartContainer(c, cname, distro); err != nil {
 		log.Println("Error creating/starting container:", err)
 		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
@@ -76,10 +77,12 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	dbWC := NewDBWriteCloser(lx.BuildID, lx.Datastore)
 
 	// Wait for the network to be running
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Waiting for the network")
 	lx.waitForNetwork(c, cname)
-	log.Println("---------------Network is up")
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Network is ready")
 
 	// Set up the container
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Install dependencies")
 	for _, cmd := range containerCmd {
 		if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
 			log.Println("Command error:", cmd, err)
@@ -91,8 +94,9 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	// Run the build
 	commands := [][]string{
 		{"git", "clone", "--progress", repo},
-		{"sh", "-cv", "cd /root/" + name + ";", "snapcraft"},
+		{"sh", "-cv", "cd", "/root/" + name + ";", "snapcraft"},
 	}
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Clone repo and build snap")
 	for _, cmd := range commands {
 		if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
 			log.Println("Command error:", cmd, err)
@@ -102,6 +106,7 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	// Pull the snap from the container
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Transfer the snap from the container")
 
 	// Remove the container
 	return nil
