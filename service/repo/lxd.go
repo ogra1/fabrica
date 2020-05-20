@@ -115,6 +115,11 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
 		return err
 	}
+	if err := lx.runInContainer(c, cname, cmd, "", dbWC); err != nil {
+		log.Println("Command error:", cmd, err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return err
+	}
 
 	// Remove the container
 	return nil
