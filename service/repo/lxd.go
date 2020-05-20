@@ -25,6 +25,7 @@ var containerCmd = [][]string{
 	{"apt", "-y", "install", "build-essential"},
 	{"apt", "-y", "clean"},
 	{"snap", "install", "snapcraft", "--classic"},
+	{"snap", "list"},
 }
 
 // LXD services
@@ -96,7 +97,8 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	// Run the build
 	commands := [][]string{
 		{"git", "clone", "--progress", repo},
-		{"sh", "-cv", "'cd /root/" + name + "; " + "snapcraft'"},
+		{"cd", "/root/" + name},
+		{"snapcraft"},
 	}
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Clone repo and build snap")
 	for _, cmd := range commands {
