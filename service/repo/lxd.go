@@ -9,6 +9,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"strings"
 	"time"
 )
 
@@ -84,6 +85,7 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	// Set up the container
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Install dependencies")
 	for _, cmd := range containerCmd {
+		lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: "+strings.Join(cmd, " "))
 		if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
 			log.Println("Command error:", cmd, err)
 			lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
@@ -94,10 +96,11 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	// Run the build
 	commands := [][]string{
 		{"git", "clone", "--progress", repo},
-		{"sh", "-cv", "cd", "/root/" + name + ";", "snapcraft"},
+		{"sh", "-cv", "'cd /root/" + name + "; " + "snapcraft'"},
 	}
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Clone repo and build snap")
 	for _, cmd := range commands {
+		lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: "+strings.Join(cmd, " "))
 		if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
 			log.Println("Command error:", cmd, err)
 			lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
@@ -107,6 +110,14 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 
 	// Pull the snap from the container
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Transfer the snap from the container")
+	cmd := []string{
+		"sh", "-cv", "'ls /root/" + name + "/*.snap'",
+	}
+	if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
+		log.Println("Command error:", cmd, err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return err
+	}
 
 	// Remove the container
 	return nil
