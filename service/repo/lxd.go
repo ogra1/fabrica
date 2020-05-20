@@ -84,10 +84,12 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Network is ready")
 
 	// Set up the container
+	commands := append(containerCmd, []string{"git", "clone", "--progress", repo})
+
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Install dependencies")
-	for _, cmd := range containerCmd {
+	for _, cmd := range commands {
 		lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: "+strings.Join(cmd, " "))
-		if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
+		if err := lx.runInContainer(c, cname, cmd, "", dbWC); err != nil {
 			log.Println("Command error:", cmd, err)
 			lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
 			return err
@@ -95,27 +97,20 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	// Run the build
-	commands := [][]string{
-		{"git", "clone", "--progress", repo},
-		{"cd", "/root/" + name},
-		{"snapcraft"},
-	}
-	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Clone repo and build snap")
-	for _, cmd := range commands {
-		lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: "+strings.Join(cmd, " "))
-		if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
-			log.Println("Command error:", cmd, err)
-			lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
-			return err
-		}
+	cmd := []string{"snapcraft"}
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Build snap")
+	if err := lx.runInContainer(c, cname, cmd, "/root/"+name, dbWC); err != nil {
+		log.Println("Command error:", cmd, err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return err
 	}
 
 	// Pull the snap from the container
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Transfer the snap from the container")
-	cmd := []string{
-		"sh", "-cv", "'ls /root/" + name + "/*.snap'",
+	cmd = []string{
+		"ls", "*.snap",
 	}
-	if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
+	if err := lx.runInContainer(c, cname, cmd, "/root/"+name, dbWC); err != nil {
 		log.Println("Command error:", cmd, err)
 		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
 		return err
@@ -175,19 +170,25 @@ func (lx *LXD) waitForNetwork(c lxd.InstanceServer, cname string) {
 	log.Println("Waiting for network...")
 	cmd := []string{"ping", "-c1", "8.8.8.8"}
 	for {
-		_ = lx.runInContainer(c, cname, cmd, wc)
+		_ = lx.runInContainer(c, cname, cmd, "", wc)
 		if wc.Found() {
 			break
 		}
 	}
 }
 
-func (lx *LXD) runInContainer(c lxd.InstanceServer, cname string, command []string, stdOutErr io.WriteCloser) error {
+func (lx *LXD) runInContainer(c lxd.InstanceServer, cname string, command []string, cwd string, stdOutErr io.WriteCloser) error {
+	useDir := "/root"
+	if cwd != "" {
+		useDir = cwd
+	}
+
 	// Setup the exec request
 	req := api.ContainerExecPost{
 		Environment: containerEnv,
 		Command:     command,
 		WaitForWS:   true,
+		Cwd:         useDir,
 	}
 
 	// Setup the exec arguments (fds)
