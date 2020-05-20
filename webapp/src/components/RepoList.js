@@ -32,7 +32,7 @@ class RepoList extends Component {
         e.preventDefault()
         api.repoCreate(this.state.repo).then(response => {
             this.props.onCreate()
-            this.setState({error:'', showAdd: false})
+            this.setState({error:'', showAdd: false, repo:''})
         })
         .catch(e => {
             console.log(formatError(e.response.data))

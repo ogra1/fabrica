@@ -24,8 +24,8 @@ class Home extends Component {
     }
 
     poll = () => {
-        // Polls every 1s
-        setTimeout(this.getDataBuilds.bind(this), 1000);
+        // Polls every 30s
+        setTimeout(this.getDataBuilds.bind(this), 30000);
     }
 
     getDataRepos() {

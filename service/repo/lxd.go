@@ -75,6 +75,10 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	// Set up the database writer for the logs
 	dbWC := NewDBWriteCloser(lx.BuildID, lx.Datastore)
 
+	// Wait for the network to be running
+	lx.waitForNetwork(c, cname)
+	log.Println("---------------Network is up")
+
 	// Set up the container
 	for _, cmd := range containerCmd {
 		if err := lx.runInContainer(c, cname, cmd, dbWC); err != nil {
@@ -143,6 +147,21 @@ func (lx *LXD) createAndStartContainer(c lxd.InstanceServer, cname, distro strin
 	}
 
 	return nil
+}
+
+func (lx *LXD) waitForNetwork(c lxd.InstanceServer, cname string) {
+	// Set up the writer to check for a message
+	wc := NewFlagWriteCloser("PING")
+
+	// Run a command in the container
+	log.Println("Waiting for network...")
+	cmd := []string{"ping", "-c1", "8.8.8.8"}
+	for {
+		_ = lx.runInContainer(c, cname, cmd, wc)
+		if wc.Found() {
+			break
+		}
+	}
 }
 
 func (lx *LXD) runInContainer(c lxd.InstanceServer, cname string, command []string, stdOutErr io.WriteCloser) error {
