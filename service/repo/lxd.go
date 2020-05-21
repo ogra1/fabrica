@@ -96,30 +96,21 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 		}
 	}
 
+	// Set up the download writer for the snap build
+	dwnWC := NewDownloadWriteCloser(lx.BuildID, lx.Datastore)
+
 	// Run the build
 	cmd := []string{"snapcraft"}
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Build snap")
-	if err := lx.runInContainer(c, cname, cmd, "/root/"+name, dbWC); err != nil {
+	if err := lx.runInContainer(c, cname, cmd, "/root/"+name, dwnWC); err != nil {
 		log.Println("Command error:", cmd, err)
 		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
 		return err
 	}
 
-	// Pull the snap from the container
-	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Transfer the snap from the container")
-	cmd = []string{
-		"ls", "*.snap",
-	}
-	if err := lx.runInContainer(c, cname, cmd, "/root/"+name, dbWC); err != nil {
-		log.Println("Command error:", cmd, err)
-		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
-		return err
-	}
-	if err := lx.runInContainer(c, cname, cmd, "", dbWC); err != nil {
-		log.Println("Command error:", cmd, err)
-		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
-		return err
-	}
+	// Download the file from the container
+	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Download file")
+	lx.Datastore.BuildLogCreate(lx.BuildID, dwnWC.Filename())
 
 	// Remove the container
 	return nil
