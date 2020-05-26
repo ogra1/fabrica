@@ -17,9 +17,6 @@ install:
   - sudo sed -i '/^deb/s/$/ universe/' /etc/apt/sources.list
   - sudo apt-get update
 
-before_script:
-  - npm install --unsafe-perm -g node-sass
-
 script:
   - sudo snapcraft --destructive-mode
   
