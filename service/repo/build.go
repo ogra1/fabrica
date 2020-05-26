@@ -23,6 +23,7 @@ const (
 	statusComplete      = "complete"
 	downloadFileMessage = "Archived snap package: "
 	snapData            = "SNAP_DATA"
+	snapCommon            = "SNAP_COMMON"
 )
 
 // BuildSrv interface for building images
@@ -107,6 +108,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	// Clean up the cloned repo
 	_ = os.RemoveAll(repoPath)
 
+	// Run the build in an LXD container
 	lx := NewLXD(buildID, bld.Datastore)
 	if err := lx.RunBuild(repo.Name, repo.Repo, distro); err != nil {
 		duration := time.Now().Sub(start).Seconds()
@@ -246,5 +248,5 @@ func nameFromRepo(repo string) string {
 }
 
 func getPath(p string) string {
-	return path.Join(os.Getenv(snapData), p)
+	return path.Join(os.Getenv(snapCommon), p)
 }

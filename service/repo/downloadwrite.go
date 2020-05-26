@@ -32,15 +32,10 @@ func (dwn *DownloadWriteCloser) Write(b []byte) (int, error) {
 
 	// Check if we have the snapped line
 	log.Println(s)
-	log.Println("Prefix", strings.HasPrefix(s, "Snapped"))
-	log.Println("Contains", strings.Contains(s, "Snapped"))
 	if strings.Contains(s, "Snapped") {
 		parts := strings.Split(s, " ")
-		log.Println("parts", parts)
-		log.Println("part1", parts[1])
 		if len(parts) > 0 {
-			log.Println("set file", parts[1])
-			dwn.filename = parts[1]
+			dwn.filename = dwn.cleanFilename(parts[1])
 		}
 	}
 
@@ -48,6 +43,12 @@ func (dwn *DownloadWriteCloser) Write(b []byte) (int, error) {
 		return 0, err
 	}
 	return len(b), nil
+}
+
+func (dwn *DownloadWriteCloser) cleanFilename(filePath string) string {
+	// Get the snap file name (without the extra text at the end)
+	parts := strings.Split(filePath, ".snap")
+	return parts[0] + ".snap"
 }
 
 // Close is a noop to fulfill the interface
@@ -61,6 +62,5 @@ func (dwn *DownloadWriteCloser) Filename() string {
 	dwn.lock.RLock()
 	defer dwn.lock.RUnlock()
 
-	log.Println("get file", dwn.filename)
 	return dwn.filename
 }

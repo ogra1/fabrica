@@ -109,11 +109,23 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	// Download the file from the container
-	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Download file")
-	lx.Datastore.BuildLogCreate(lx.BuildID, dwnWC.Filename())
+	lx.Datastore.BuildLogCreate(lx.BuildID, fmt.Sprintf("milestone: Download file %s", dwnWC.Filename()))
+	downloadPath, err := lx.copyFile(c, cname, name, dwnWC.Filename())
+	if err != nil {
+		log.Println("Copy error:", cmd, err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return err
+	}
+	lx.Datastore.BuildUpdateDownload(lx.BuildID, downloadPath)
 
 	// Remove the container
-	return nil
+	lx.Datastore.BuildLogCreate(lx.BuildID, fmt.Sprintf("milestone: Removing container %s", cname))
+	if err := lx.stopAndDeleteContainer(c, cname); err != nil {
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return err
+	}
+
+	return err
 }
 
 func (lx *LXD) createAndStartContainer(c lxd.InstanceServer, cname, distro string) error {
@@ -150,12 +162,29 @@ func (lx *LXD) createAndStartContainer(c lxd.InstanceServer, cname, distro strin
 	}
 
 	// Wait for the operation to complete
-	err = op.Wait()
+	return op.Wait()
+}
+
+func (lx *LXD) stopAndDeleteContainer(c lxd.InstanceServer, cname string) error {
+	// Get LXD to start the container (background operation)
+	reqState := api.ContainerStatePut{
+		Action:  "stop",
+		Timeout: -1,
+	}
+
+	op, err := c.UpdateContainerState(cname, reqState, "")
 	if err != nil {
 		return err
 	}
 
-	return nil
+	// Wait for the operation to complete
+	if err := op.Wait(); err != nil {
+		return err
+	}
+
+	// Delete the container, but don't wait
+	_, err = c.DeleteContainer(cname)
+	return err
 }
 
 func (lx *LXD) waitForNetwork(c lxd.InstanceServer, cname string) {
@@ -201,6 +230,32 @@ func (lx *LXD) runInContainer(c lxd.InstanceServer, cname string, command []stri
 
 	// Wait for it to complete
 	return op.Wait()
+}
+
+func (lx *LXD) copyFile(c lxd.InstanceServer, cname, name, filePath string) (string, error) {
+	// Generate the source path
+	inFile := path.Join("/root", name, filePath)
+
+	// Generate the destination path
+	p := getPath(lx.BuildID)
+	_ = os.MkdirAll(p, os.ModePerm)
+	destFile := path.Join(p, path.Base(filePath))
+	outFile, err := os.Create(destFile)
+	if err != nil {
+		return "", fmt.Errorf("error creating snap file: %v", err)
+	}
+
+	// Get the snap file from the container
+	log.Println("Copy file from:", inFile)
+	content, _, err := c.GetContainerFile(cname, inFile)
+	if err != nil {
+		return "", fmt.Errorf("error fetching snap file: %v", err)
+	}
+	defer content.Close()
+
+	// Copy the file
+	_, err = io.Copy(outFile, content)
+	return destFile, err
 }
 
 func containerName(name string) string {
