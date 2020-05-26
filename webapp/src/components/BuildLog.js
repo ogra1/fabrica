@@ -92,9 +92,7 @@ class BuildLog extends Component {
                         <Button className="col-2" appearance="neutral" onClick={this.handleScrollClick}>{T('scroll-on')}</Button>
                     }
 
-                    <div className="log">
-                        {this.renderLog()}
-                    </div>
+                    {this.renderLog()}
 
                     {this.state.scrollLog ?
                         <Button className="col-2" appearance="brand" onClick={this.handleScrollClick}>{T('scroll-off')}</Button>
