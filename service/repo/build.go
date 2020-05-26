@@ -19,7 +19,6 @@ const (
 	statusFailed        = "failed"
 	statusComplete      = "complete"
 	downloadFileMessage = "Archived snap package: "
-	snapData            = "SNAP_DATA"
 	snapCommon          = "SNAP_COMMON"
 )
 

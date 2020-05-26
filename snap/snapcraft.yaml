@@ -52,7 +52,7 @@ parts:
       nvm run node --version
 
       cd webapp
-      npm install
+      npm install --unsafe-perm
       npm run build
 
       mkdir -p $SNAPCRAFT_PART_INSTALL/static/
