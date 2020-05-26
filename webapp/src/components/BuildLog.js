@@ -1,13 +1,14 @@
 import React, {Component} from 'react';
 import api from "./api";
 import {formatError, T} from "./Utils";
-import {Row, Code, Notification, Button} from '@canonical/react-components'
+import {Row, Notification, Button} from '@canonical/react-components'
 import DetailsCard from "./DetailsCard";
 
 class BuildLog extends Component {
     constructor(props) {
         super(props)
         this.state = {
+            //build: {logs:[{message:'Getting ready'}, {message:'milestone: Hello world\n\n'}, {message:'This is new'}]},
             build: {},
             error: '',
             scrollLog: false,
@@ -54,9 +55,17 @@ class BuildLog extends Component {
     renderLog() {
         if (!this.state.build.logs) {return T('getting-ready')+ '\r\n'}
 
-        return this.state.build.logs.map(l => {
-            return l.message + '\r\n'
-        })
+        return (
+            <div className="log">
+                {this.state.build.logs.map(l => {
+                    if (l.message.startsWith('milestone:')) {
+                        return <p className="milestone">{l.message.replace('milestone:','')}</p>
+                    } else {
+                        return <p>{l.message}</p>
+                    }
+                })}
+            </div>
+        )
     }
 
     render() {
@@ -83,9 +92,7 @@ class BuildLog extends Component {
                         <Button className="col-2" appearance="neutral" onClick={this.handleScrollClick}>{T('scroll-on')}</Button>
                     }
 
-                    <Code className="log"s>
-                        {this.renderLog()}
-                    </Code>
+                    {this.renderLog()}
 
                     {this.state.scrollLog ?
                         <Button className="col-2" appearance="brand" onClick={this.handleScrollClick}>{T('scroll-off')}</Button>

@@ -38,6 +38,17 @@ pre {
 .log {
   background-color: #333333;
   color: #eeeeee;
+  font-family: "Ubuntu Mono", Menlo, Consolas, monospace;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+}
+
+.log p {
+  max-width: none;
+}
+
+.milestone {
+  color: darkorange;
 }
 
 .col-small {
