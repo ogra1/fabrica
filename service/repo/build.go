@@ -1,17 +1,14 @@
 package repo
 
 import (
-	"bufio"
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
 	"gopkg.in/yaml.v2"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
-	"os/exec"
 	"path"
 	"strings"
 	"time"
@@ -23,6 +20,7 @@ const (
 	statusComplete      = "complete"
 	downloadFileMessage = "Archived snap package: "
 	snapData            = "SNAP_DATA"
+	snapCommon          = "SNAP_COMMON"
 )
 
 // BuildSrv interface for building images
@@ -104,19 +102,14 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	}
 	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Distro: %s\n", distro))
 
-	// Run the build via the python script
-	cmd, err := bld.runBuild(repo, buildID, distro, err)
-	if err != nil {
-		log.Println("Run build:", err)
-		duration := time.Now().Sub(start).Seconds()
-		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
-		return err
-	}
+	// Clean up the cloned repo
+	_ = os.RemoveAll(repoPath)
 
-	if err := cmd.Wait(); err != nil {
+	// Run the build in an LXD container
+	lx := NewLXD(buildID, bld.Datastore)
+	if err := lx.RunBuild(repo.Name, repo.Repo, distro); err != nil {
 		duration := time.Now().Sub(start).Seconds()
 		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
-		log.Println(err)
 		return err
 	}
 
@@ -127,44 +120,6 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	duration := time.Now().Sub(start).Seconds()
 	_ = bld.Datastore.BuildUpdate(buildID, statusComplete, int(duration))
 	return nil
-}
-
-func (bld *BuildService) runBuild(repo domain.Repo, buildID string, distro string, err error) (*exec.Cmd, error) {
-	// Set up the build command
-	p := path.Join(os.Getenv("SNAP"), "bin/build.py")
-
-	cmd := exec.Command(p, repo.Repo, buildID, distro)
-	stdout, err := cmd.StdoutPipe()
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	stderr, err := cmd.StderrPipe()
-	if err != nil {
-		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, 0)
-		log.Println(err)
-		return nil, err
-	}
-
-	// Start the build
-	if err := cmd.Start(); err != nil {
-		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, 0)
-		log.Println(err)
-		return nil, err
-	}
-
-	s := bufio.NewScanner(io.MultiReader(stdout, stderr))
-	for s.Scan() {
-		if err := bld.Datastore.BuildLogCreate(buildID, s.Text()); err != nil {
-			_ = bld.Datastore.BuildUpdate(buildID, statusFailed, 0)
-			return nil, fmt.Errorf("error storing log: %v", err)
-		}
-
-		if strings.HasPrefix(s.Text(), downloadFileMessage) {
-			bld.checkForDownloadFile(buildID, s.Text())
-		}
-	}
-	return cmd, nil
 }
 
 // cloneRepo the repo and return the path and tag
@@ -252,5 +207,5 @@ func nameFromRepo(repo string) string {
 }
 
 func getPath(p string) string {
-	return path.Join(os.Getenv(snapData), p)
+	return path.Join(os.Getenv(snapCommon), p)
 }
