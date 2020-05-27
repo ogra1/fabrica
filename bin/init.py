@@ -11,6 +11,7 @@ client = Client()
 
 warnings.filterwarnings("ignore")
 
+
 def convert(num):
     unit = 1000.0
     for x in ['', 'KB', 'MB', 'GB', 'TB']:
@@ -18,11 +19,13 @@ def convert(num):
             return "%.0f%s" % (num, x)
         num /= unit
 
+
 def get_driver():
     machine = platform.machine().lower()
     if machine.startswith(('arm', 'aarch64')):
         return "btrfs"
     return "zfs"
+
 
 def create_storage():
     snap_data = os.environ['SNAP_DATA']
@@ -40,10 +43,11 @@ def create_storage():
             print(ex)
             sys.exit(1)
 
+
 def init_image(name):
     try:
-        if client.images.get_by_alias(name):
-          print('Image: ' + name + ' already exists')
+        if client.images.get_by_alias('fabrica-'+name):
+          print('Image: ' + 'fabrica-' + name + ' already exists')
           return
     except:
         print('Creating master image: ' + name)
@@ -51,11 +55,13 @@ def init_image(name):
     image = client.images.create_from_simplestreams(
         'https://cloud-images.ubuntu.com/daily',
         name)
-    image.add_alias(name, '')
+    image.add_alias('fabrica-'+name, '')
+
 
 def main():
     create_storage()
-    for img in [ 'bionic', 'xenial' ]:
+    for img in ['bionic', 'xenial']:
         init_image(img)
+
 
 main()

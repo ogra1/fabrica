@@ -61,16 +61,19 @@ func (srv *Service) Watch() {
 			hash, update, err := srv.checkForUpdates(r)
 			if err != nil {
 				log.Println("Error checking repository:", err)
-				break
+				// check the next repo
+				continue
 			}
 			if !update {
-				break
+				// no update so check the next repo
+				continue
 			}
 
 			// trigger the build
 			if _, err := srv.BuildSrv.Build(r.ID); err != nil {
 				log.Println("Error building snap:", err)
-				break
+				// check the next repo
+				continue
 			}
 
 			// update the last commit hash
