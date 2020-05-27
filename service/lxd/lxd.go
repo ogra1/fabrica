@@ -1,10 +1,12 @@
-package repo
+package lxd
 
 import (
 	"fmt"
 	"github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/ogra1/fabrica/datastore"
+	"github.com/ogra1/fabrica/service"
+	"github.com/ogra1/fabrica/service/writecloser"
 	"io"
 	"log"
 	"os"
@@ -28,6 +30,12 @@ var containerCmd = [][]string{
 	{"snap", "list"},
 }
 
+// Service is the interface for the LXD service
+type Service interface {
+	RunBuild(name, repo, distro string) error
+	GetImageAlias(name string) error
+}
+
 // LXD services
 type LXD struct {
 	BuildID   string
@@ -48,19 +56,9 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	log.Println("Creating and starting container")
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Creating and starting container")
 
-	// Get LXD socket path
-	lxdSocket, err := lxdSocketPath()
+	// Connect to the lxd service
+	c, err := lx.connect()
 	if err != nil {
-		log.Println("Error with lxd socket:", err)
-		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
-		return err
-	}
-
-	// Connect to LXD over the Unix socket
-	c, err := lxd.ConnectLXDUnix(lxdSocket, nil)
-	if err != nil {
-		log.Println("Error creating/starting container:", err)
-		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
 		return err
 	}
 
@@ -76,7 +74,7 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	// Set up the database writer for the logs
-	dbWC := NewDBWriteCloser(lx.BuildID, lx.Datastore)
+	dbWC := writecloser.NewDBWriteCloser(lx.BuildID, lx.Datastore)
 
 	// Wait for the network to be running
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Waiting for the network")
@@ -97,7 +95,7 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	// Set up the download writer for the snap build
-	dwnWC := NewDownloadWriteCloser(lx.BuildID, lx.Datastore)
+	dwnWC := writecloser.NewDownloadWriteCloser(lx.BuildID, lx.Datastore)
 
 	// Run the build
 	cmd := []string{"snapcraft"}
@@ -126,6 +124,25 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	return err
+}
+
+func (lx *LXD) connect() (lxd.InstanceServer, error) {
+	// Get LXD socket path
+	lxdSocket, err := lxdSocketPath()
+	if err != nil {
+		log.Println("Error with lxd socket:", err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return nil, err
+	}
+
+	// Connect to LXD over the Unix socket
+	c, err := lxd.ConnectLXDUnix(lxdSocket, nil)
+	if err != nil {
+		log.Println("Error creating/starting container:", err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return nil, err
+	}
+	return c, nil
 }
 
 func (lx *LXD) createAndStartContainer(c lxd.InstanceServer, cname, distro string) error {
@@ -189,7 +206,7 @@ func (lx *LXD) stopAndDeleteContainer(c lxd.InstanceServer, cname string) error 
 
 func (lx *LXD) waitForNetwork(c lxd.InstanceServer, cname string) {
 	// Set up the writer to check for a message
-	wc := NewFlagWriteCloser("PING")
+	wc := writecloser.NewFlagWriteCloser("PING")
 
 	// Run a command in the container
 	log.Println("Waiting for network...")
@@ -237,7 +254,7 @@ func (lx *LXD) copyFile(c lxd.InstanceServer, cname, name, filePath string) (str
 	inFile := path.Join("/root", name, filePath)
 
 	// Generate the destination path
-	p := getPath(lx.BuildID)
+	p := service.GetPath(lx.BuildID)
 	_ = os.MkdirAll(p, os.ModePerm)
 	destFile := path.Join(p, path.Base(filePath))
 	outFile, err := os.Create(destFile)

@@ -25,6 +25,10 @@ let service = {
     repoCreate: (repo, cancelCallback) => {
         return axios.post(constants.baseUrl + 'repos', {repo: repo});
     },
+
+    imageList: (cancelCallback) => {
+        return axios.get(constants.baseUrl + 'images');
+    },
 }
 
 export default service

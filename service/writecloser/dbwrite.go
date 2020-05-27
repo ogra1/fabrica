@@ -1,4 +1,4 @@
-package repo
+package writecloser
 
 import "github.com/ogra1/fabrica/datastore"
 
