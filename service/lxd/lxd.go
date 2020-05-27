@@ -30,6 +30,12 @@ var containerCmd = [][]string{
 	{"snap", "list"},
 }
 
+// Service is the interface for the LXD service
+type Service interface {
+	RunBuild(name, repo, distro string) error
+	GetImageAlias(name string) error
+}
+
 // LXD services
 type LXD struct {
 	BuildID   string
@@ -50,19 +56,9 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	log.Println("Creating and starting container")
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Creating and starting container")
 
-	// Get LXD socket path
-	lxdSocket, err := lxdSocketPath()
+	// Connect to the lxd service
+	c, err := lx.connect()
 	if err != nil {
-		log.Println("Error with lxd socket:", err)
-		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
-		return err
-	}
-
-	// Connect to LXD over the Unix socket
-	c, err := lxd.ConnectLXDUnix(lxdSocket, nil)
-	if err != nil {
-		log.Println("Error creating/starting container:", err)
-		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
 		return err
 	}
 
@@ -128,6 +124,25 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	return err
+}
+
+func (lx *LXD) connect() (lxd.InstanceServer, error) {
+	// Get LXD socket path
+	lxdSocket, err := lxdSocketPath()
+	if err != nil {
+		log.Println("Error with lxd socket:", err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return nil, err
+	}
+
+	// Connect to LXD over the Unix socket
+	c, err := lxd.ConnectLXDUnix(lxdSocket, nil)
+	if err != nil {
+		log.Println("Error creating/starting container:", err)
+		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		return nil, err
+	}
+	return c, nil
 }
 
 func (lx *LXD) createAndStartContainer(c lxd.InstanceServer, cname, distro string) error {

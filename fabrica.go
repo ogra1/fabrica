@@ -5,6 +5,7 @@ import (
 	"github.com/ogra1/fabrica/config"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/datastore/sqlite"
+	"github.com/ogra1/fabrica/service/lxd"
 	"github.com/ogra1/fabrica/service/repo"
 	"github.com/ogra1/fabrica/service/watch"
 	"github.com/ogra1/fabrica/web"
@@ -30,7 +31,8 @@ func main() {
 }
 
 func webService(settings *config.Settings, buildSrv *repo.BuildService) {
-	srv := web.NewWebService(settings, buildSrv)
+	lxdSrv := lxd.NewLXD("", nil)
+	srv := web.NewWebService(settings, buildSrv, lxdSrv)
 	srv.Start()
 }
 

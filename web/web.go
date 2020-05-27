@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/ogra1/fabrica/config"
+	"github.com/ogra1/fabrica/service/lxd"
 	"github.com/ogra1/fabrica/service/repo"
 	"net/http"
 )
@@ -12,13 +13,15 @@ import (
 type Web struct {
 	Settings *config.Settings
 	BuildSrv repo.BuildSrv
+	LXDSrv   lxd.Service
 }
 
 // NewWebService starts a new web service
-func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv) *Web {
+func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv, lxdSrv lxd.Service) *Web {
 	return &Web{
 		Settings: settings,
 		BuildSrv: bldSrv,
+		LXDSrv:   lxdSrv,
 	}
 }
 
@@ -36,6 +39,8 @@ func (srv Web) Router() *mux.Router {
 
 	router.Handle("/v1/repos", Middleware(http.HandlerFunc(srv.RepoList))).Methods("GET")
 	router.Handle("/v1/repos", Middleware(http.HandlerFunc(srv.RepoCreate))).Methods("POST")
+
+	router.Handle("/v1/images", Middleware(http.HandlerFunc(srv.ImageAliases))).Methods("GET")
 
 	router.Handle("/v1/build", Middleware(http.HandlerFunc(srv.Build))).Methods("POST")
 	router.Handle("/v1/builds", Middleware(http.HandlerFunc(srv.BuildList))).Methods("GET")
