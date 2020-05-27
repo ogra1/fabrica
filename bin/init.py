@@ -46,8 +46,8 @@ def create_storage():
 
 def init_image(name):
     try:
-        if client.images.get_by_alias(name):
-          print('Image: ' + name + ' already exists')
+        if client.images.get_by_alias('fabrica-'+name):
+          print('Image: ' + 'fabrica-' + name + ' already exists')
           return
     except:
         print('Creating master image: ' + name)
@@ -55,7 +55,7 @@ def init_image(name):
     image = client.images.create_from_simplestreams(
         'https://cloud-images.ubuntu.com/daily',
         name)
-    image.add_alias(name, '')
+    image.add_alias('fabrica-'+name, '')
 
 
 def main():

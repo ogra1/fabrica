@@ -134,7 +134,7 @@ func (lx *LXD) createAndStartContainer(c lxd.InstanceServer, cname, distro strin
 		Name: cname,
 		Source: api.ContainerSource{
 			Type:  "image",
-			Alias: distro,
+			Alias: "fabrica-" + distro,
 		},
 	}
 
