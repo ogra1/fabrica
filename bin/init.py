@@ -11,6 +11,7 @@ client = Client()
 
 warnings.filterwarnings("ignore")
 
+
 def convert(num):
     unit = 1000.0
     for x in ['', 'KB', 'MB', 'GB', 'TB']:
@@ -18,11 +19,13 @@ def convert(num):
             return "%.0f%s" % (num, x)
         num /= unit
 
+
 def get_driver():
     machine = platform.machine().lower()
     if machine.startswith(('arm', 'aarch64')):
         return "btrfs"
     return "zfs"
+
 
 def create_storage():
     snap_data = os.environ['SNAP_DATA']
@@ -40,6 +43,7 @@ def create_storage():
             print(ex)
             sys.exit(1)
 
+
 def init_image(name):
     try:
         if client.images.get_by_alias(name):
@@ -53,9 +57,11 @@ def init_image(name):
         name)
     image.add_alias(name, '')
 
+
 def main():
     create_storage()
-    for img in [ 'bionic', 'xenial' ]:
+    for img in ['bionic', 'xenial']:
         init_image(img)
+
 
 main()
