@@ -1,4 +1,4 @@
-package repo
+package writecloser
 
 import (
 	"github.com/ogra1/fabrica/datastore"
@@ -41,6 +41,7 @@ func (wc *FlagWriteCloser) Close() error {
 	return nil
 }
 
+// Found identifies if the string has been found
 func (wc *FlagWriteCloser) Found() bool {
 	wc.lock.RLock()
 	defer wc.lock.RUnlock()

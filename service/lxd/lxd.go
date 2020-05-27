@@ -1,10 +1,12 @@
-package repo
+package lxd
 
 import (
 	"fmt"
 	"github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/ogra1/fabrica/datastore"
+	"github.com/ogra1/fabrica/service"
+	"github.com/ogra1/fabrica/service/writecloser"
 	"io"
 	"log"
 	"os"
@@ -76,7 +78,7 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	// Set up the database writer for the logs
-	dbWC := NewDBWriteCloser(lx.BuildID, lx.Datastore)
+	dbWC := writecloser.NewDBWriteCloser(lx.BuildID, lx.Datastore)
 
 	// Wait for the network to be running
 	lx.Datastore.BuildLogCreate(lx.BuildID, "milestone: Waiting for the network")
@@ -97,7 +99,7 @@ func (lx *LXD) RunBuild(name, repo, distro string) error {
 	}
 
 	// Set up the download writer for the snap build
-	dwnWC := NewDownloadWriteCloser(lx.BuildID, lx.Datastore)
+	dwnWC := writecloser.NewDownloadWriteCloser(lx.BuildID, lx.Datastore)
 
 	// Run the build
 	cmd := []string{"snapcraft"}
@@ -189,7 +191,7 @@ func (lx *LXD) stopAndDeleteContainer(c lxd.InstanceServer, cname string) error 
 
 func (lx *LXD) waitForNetwork(c lxd.InstanceServer, cname string) {
 	// Set up the writer to check for a message
-	wc := NewFlagWriteCloser("PING")
+	wc := writecloser.NewFlagWriteCloser("PING")
 
 	// Run a command in the container
 	log.Println("Waiting for network...")
@@ -237,7 +239,7 @@ func (lx *LXD) copyFile(c lxd.InstanceServer, cname, name, filePath string) (str
 	inFile := path.Join("/root", name, filePath)
 
 	// Generate the destination path
-	p := getPath(lx.BuildID)
+	p := service.GetPath(lx.BuildID)
 	_ = os.MkdirAll(p, os.ModePerm)
 	destFile := path.Join(p, path.Base(filePath))
 	outFile, err := os.Create(destFile)

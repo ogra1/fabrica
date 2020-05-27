@@ -5,6 +5,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
+	"github.com/ogra1/fabrica/service"
+	"github.com/ogra1/fabrica/service/lxd"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
@@ -19,7 +21,6 @@ const (
 	statusFailed        = "failed"
 	statusComplete      = "complete"
 	downloadFileMessage = "Archived snap package: "
-	snapCommon          = "SNAP_COMMON"
 )
 
 // BuildSrv interface for building images
@@ -105,7 +106,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	_ = os.RemoveAll(repoPath)
 
 	// Run the build in an LXD container
-	lx := NewLXD(buildID, bld.Datastore)
+	lx := lxd.NewLXD(buildID, bld.Datastore)
 	if err := lx.RunBuild(repo.Name, repo.Repo, distro); err != nil {
 		duration := time.Now().Sub(start).Seconds()
 		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
@@ -124,7 +125,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 // cloneRepo the repo and return the path and tag
 func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 	// Clone the repo
-	p := getPath(r.ID)
+	p := service.GetPath(r.ID)
 	log.Println("git", "clone", "--depth", "1", r.Repo, p)
 	gitRepo, err := git.PlainClone(p, false, &git.CloneOptions{
 		URL:   r.Repo,
@@ -203,8 +204,4 @@ func (bld *BuildService) checkForDownloadFile(buildID, message string) {
 func nameFromRepo(repo string) string {
 	base := path.Base(repo)
 	return strings.TrimSuffix(base, ".git")
-}
-
-func getPath(p string) string {
-	return path.Join(os.Getenv(snapCommon), p)
 }
