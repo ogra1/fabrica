@@ -13,6 +13,7 @@ export default {
     'getting-ready': 'Getting ready for lift off...',
     'in-progress': 'In Progress',
     'last-commit': 'Last Commit',
+    'loading-images': 'Waiting for LXD images...',
     'name': 'Name',
     'repo': 'Repository',
     'repo-list': 'Watched repositories',
