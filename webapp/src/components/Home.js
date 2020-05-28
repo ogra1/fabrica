@@ -10,7 +10,7 @@ class Home extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            ready: false,
+            ready: true,
             images: [{alias: 'fabrica-bionic', available: true}, {alias: 'fabrica-xenial', available: false}],
             repos: [
                 {id:'aaa', name:'test', repo:'github.com/TestCompany/test', hash:'abcdef', created:'2020-05-14T19:01:34Z', modified:'2020-05-14T19:01:34Z'}
