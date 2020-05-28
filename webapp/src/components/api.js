@@ -27,7 +27,11 @@ let service = {
     },
 
     imageList: (cancelCallback) => {
-        return axios.get(constants.baseUrl + 'images');
+        return axios.get(constants.baseUrl + 'check/images');
+    },
+
+    connectionList: (cancelCallback) => {
+        return axios.get(constants.baseUrl + 'check/connections');
     },
 }
 

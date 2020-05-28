@@ -75,6 +75,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	if err != nil {
 		log.Println("Cloning repository:", err)
 		duration := time.Now().Sub(start).Seconds()
+		_ = bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Error cloning repo: %v\n", err))
 		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
 	}
@@ -86,6 +87,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	if err != nil {
 		log.Println("Find snapcraft.yaml:", err)
 		duration := time.Now().Sub(start).Seconds()
+		_ = bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Find snapcraft.yaml: %v\n", err))
 		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
 	}
@@ -97,6 +99,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	if err != nil {
 		log.Println("Get distro:", err)
 		duration := time.Now().Sub(start).Seconds()
+		_ = bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("Get distro: %v\n", err))
 		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
 	}

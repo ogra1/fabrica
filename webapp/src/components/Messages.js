@@ -5,6 +5,7 @@ export default {
     'build-log': 'Build Log',
     'build-requests': 'Latest builds',
     'cancel': 'Cancel',
+    'check-connections': 'Ensure all the interfaces are connected with `snap connect`',
     'complete': 'Complete',
     'confirm-delete': 'Confirm delete',
     'confirm-delete-message': 'Are you sure you want to delete the build: ',

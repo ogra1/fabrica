@@ -31,3 +31,9 @@ type BuildLog struct {
 	Message string    `json:"message"`
 	Created time.Time `json:"created"`
 }
+
+// SettingAvailable is a generic response for a setting
+type SettingAvailable struct {
+	Name      string `json:"name"`
+	Available bool   `json:"available"`
+}
