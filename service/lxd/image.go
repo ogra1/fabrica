@@ -2,7 +2,6 @@ package lxd
 
 import (
 	"github.com/ogra1/fabrica/domain"
-	"log"
 	"os/exec"
 	"syscall"
 )
@@ -39,7 +38,6 @@ func (lx *LXD) CheckConnections() []domain.SettingAvailable {
 }
 
 func runCommand(name string, args ...string) int {
-	log.Println("run command:", name, args)
 	cmd := exec.Command(name, args...)
 	err := cmd.Run()
 	if err != nil {
@@ -53,6 +51,5 @@ func runCommand(name string, args ...string) int {
 		ws := cmd.ProcessState.Sys().(syscall.WaitStatus)
 		return ws.ExitStatus()
 	}
-	log.Println("Unknown condition...")
 	return 1
 }
