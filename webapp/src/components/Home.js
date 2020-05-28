@@ -5,13 +5,16 @@ import api from "./api";
 import {T, formatError} from "./Utils";
 import {Notification} from '@canonical/react-components'
 import ImageList from "./ImageList";
+import ConnectionList from "./ConnectionList";
 
 class Home extends Component {
     constructor(props) {
         super(props)
         this.state = {
             ready: true,
-            images: [{alias: 'fabrica-bionic', available: true}, {alias: 'fabrica-xenial', available: false}],
+            connectReady: true,
+            images: [{name: 'fabrica-bionic', available: true}, {name: 'fabrica-xenial', available: false}],
+            connections: [{name: 'lxd', available: true}, {name: 'system-observe', available: false}],
             repos: [
                 {id:'aaa', name:'test', repo:'github.com/TestCompany/test', hash:'abcdef', created:'2020-05-14T19:01:34Z', modified:'2020-05-14T19:01:34Z'}
             ],
@@ -24,6 +27,7 @@ class Home extends Component {
     componentDidMount() {
         this.getDataRepos()
         this.getDataBuilds()
+        this.getDataConnections()
         this.getDataImages()
     }
 
@@ -36,6 +40,13 @@ class Home extends Component {
         // Polls every 2s
         if (!this.state.ready) {
             setTimeout(this.getDataImages.bind(this), 2000);
+        }
+    }
+
+    pollConnections = () => {
+        // Polls every 2s
+        if (!this.state.connectReady) {
+            setTimeout(this.getDataConnections.bind(this), 2000);
         }
     }
 
@@ -55,6 +66,25 @@ class Home extends Component {
         })
         .finally( ()=> {
             this.pollImages()
+        })
+    }
+
+    getDataConnections() {
+        api.connectionList().then(response => {
+            let ready = true
+            response.data.records.map(r => {
+                ready = ready && r.available
+                return ready
+            })
+
+            this.setState({connections: response.data.records, connectReady: ready})
+        })
+        .catch(e => {
+            console.log(formatError(e.response.data))
+            this.setState({error: formatError(e.response.data), message: ''});
+        })
+        .finally( ()=> {
+            this.pollConnections()
         })
     }
 
@@ -117,6 +147,11 @@ class Home extends Component {
                             {this.state.error}
                         </Notification>
                         : ''
+                }
+                {
+                    this.state.connectReady ?
+                        '' :
+                        <ConnectionList connections={this.state.connections} />
                 }
                 {
                     this.state.ready ?

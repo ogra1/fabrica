@@ -5,6 +5,7 @@ import (
 	"github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/ogra1/fabrica/datastore"
+	"github.com/ogra1/fabrica/domain"
 	"github.com/ogra1/fabrica/service"
 	"github.com/ogra1/fabrica/service/writecloser"
 	"io"
@@ -34,6 +35,7 @@ var containerCmd = [][]string{
 type Service interface {
 	RunBuild(name, repo, distro string) error
 	GetImageAlias(name string) error
+	CheckConnections() []domain.SettingAvailable
 }
 
 // LXD services
@@ -131,15 +133,19 @@ func (lx *LXD) connect() (lxd.InstanceServer, error) {
 	lxdSocket, err := lxdSocketPath()
 	if err != nil {
 		log.Println("Error with lxd socket:", err)
-		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		if lx.BuildID != "" {
+			lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		}
 		return nil, err
 	}
 
 	// Connect to LXD over the Unix socket
 	c, err := lxd.ConnectLXDUnix(lxdSocket, nil)
 	if err != nil {
-		log.Println("Error creating/starting container:", err)
-		lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		log.Println("Error connecting to LXD:", err)
+		if lx.BuildID != "" {
+			lx.Datastore.BuildLogCreate(lx.BuildID, err.Error())
+		}
 		return nil, err
 	}
 	return c, nil
