@@ -10,6 +10,7 @@ type Datastore interface {
 	BuildUpdateDownload(id, download string) error
 	BuildGet(id string) (domain.Build, error)
 	BuildDelete(id string) error
+	BuildListForRepo(name string) ([]domain.Build, error)
 
 	BuildLogCreate(id, message string) error
 	BuildLogList(id string) ([]domain.BuildLog, error)
@@ -18,4 +19,5 @@ type Datastore interface {
 	RepoGet(id string) (domain.Repo, error)
 	RepoList(watch bool) ([]domain.Repo, error)
 	RepoUpdateHash(id, hash string) error
+	RepoDelete(id string) error
 }

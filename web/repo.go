@@ -1,8 +1,17 @@
 package web
 
-import "net/http"
+import (
+	"encoding/json"
+	"io"
+	"net/http"
+)
 
-// RepoCreate initiates a build
+type repoDeleteRequest struct {
+	RepoID       string `json:"id"`
+	DeleteBuilds bool   `json:"deleteBuilds"`
+}
+
+// RepoCreate creates a repository
 func (srv Web) RepoCreate(w http.ResponseWriter, r *http.Request) {
 	req := srv.decodeBuildRequest(w, r)
 	if req == nil {
@@ -28,4 +37,37 @@ func (srv Web) RepoList(w http.ResponseWriter, r *http.Request) {
 	}
 
 	formatRecordsResponse(records, w)
+}
+
+// RepoDelete remove a repo and, optionally, its builds
+func (srv Web) RepoDelete(w http.ResponseWriter, r *http.Request) {
+	req := srv.decodeRepoDeleteRequest(w, r)
+	if req == nil {
+		return
+	}
+
+	// Delete the repo
+	if err := srv.BuildSrv.RepoDelete(req.RepoID, req.DeleteBuilds); err != nil {
+		formatStandardResponse("repo", err.Error(), w)
+		return
+	}
+
+	formatStandardResponse("", "", w)
+}
+
+func (srv Web) decodeRepoDeleteRequest(w http.ResponseWriter, r *http.Request) *repoDeleteRequest {
+	// Decode the JSON body
+	req := repoDeleteRequest{}
+	err := json.NewDecoder(r.Body).Decode(&req)
+	switch {
+	// Check we have some data
+	case err == io.EOF:
+		formatStandardResponse("data", "No request data supplied.", w)
+		return nil
+		// Check for parsing errors
+	case err != nil:
+		formatStandardResponse("decode-json", err.Error(), w)
+		return nil
+	}
+	return &req
 }
