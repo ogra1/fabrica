@@ -135,7 +135,7 @@ func (db *DB) BuildListForRepo(name string) ([]domain.Build, error) {
 
 	for rows.Next() {
 		r := domain.Build{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Duration)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download)
 		if err != nil {
 			return logs, err
 		}

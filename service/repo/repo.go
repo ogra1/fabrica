@@ -3,6 +3,7 @@ package repo
 import (
 	"fmt"
 	"github.com/ogra1/fabrica/domain"
+	"log"
 )
 
 // RepoCreate creates a new repo
@@ -24,6 +25,8 @@ func (bld *BuildService) RepoList(watch bool) ([]domain.Repo, error) {
 
 // RepoDelete removes a repo and optionally removes its builds
 func (bld *BuildService) RepoDelete(id string, deleteBuilds bool) error {
+	log.Println("Repo Delete:", id, deleteBuilds)
+
 	if !deleteBuilds {
 		// Just remove the repo record
 		return bld.Datastore.RepoDelete(id)
@@ -36,7 +39,7 @@ func (bld *BuildService) RepoDelete(id string, deleteBuilds bool) error {
 	}
 
 	// Get the builds for this repo
-	builds, err := bld.Datastore.BuildListForRepo(repo.Name)
+	builds, err := bld.Datastore.BuildListForRepo(repo.Repo)
 	if err != nil {
 		return fmt.Errorf("error finding builds: %v", err)
 	}

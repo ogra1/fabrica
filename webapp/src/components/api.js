@@ -26,6 +26,10 @@ let service = {
         return axios.post(constants.baseUrl + 'repos', {repo: repo});
     },
 
+    repoDelete: (repoId, deleteBuilds, cancelCallback) => {
+        return axios.post(constants.baseUrl + 'repos/delete', {id: repoId, deleteBuilds: deleteBuilds});
+    },
+
     imageList: (cancelCallback) => {
         return axios.get(constants.baseUrl + 'check/images');
     },

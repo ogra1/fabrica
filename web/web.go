@@ -39,7 +39,7 @@ func (srv Web) Router() *mux.Router {
 
 	router.Handle("/v1/repos", Middleware(http.HandlerFunc(srv.RepoList))).Methods("GET")
 	router.Handle("/v1/repos", Middleware(http.HandlerFunc(srv.RepoCreate))).Methods("POST")
-	router.Handle("/v1/repos", Middleware(http.HandlerFunc(srv.RepoDelete))).Methods("DELETE")
+	router.Handle("/v1/repos/delete", Middleware(http.HandlerFunc(srv.RepoDelete))).Methods("POST")
 
 	router.Handle("/v1/check/images", Middleware(http.HandlerFunc(srv.ImageAliases))).Methods("GET")
 	router.Handle("/v1/check/connections", Middleware(http.HandlerFunc(srv.CheckConnections))).Methods("GET")
