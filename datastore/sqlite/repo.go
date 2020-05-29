@@ -39,6 +39,9 @@ const getRepoSQL = `
 	FROM repo
 	WHERE id=$1
 `
+const deleteRepoSQL = `
+	DELETE FROM repo WHERE id=$1
+`
 
 // RepoCreate creates a new repository to watch
 func (db *DB) RepoCreate(name, repo string) (string, error) {
@@ -92,4 +95,10 @@ func (db *DB) RepoGet(id string) (domain.Repo, error) {
 		return r, err
 	}
 	return r, nil
+}
+
+// RepoDelete removes a repo from its ID
+func (db *DB) RepoDelete(id string) error {
+	_, err := db.Exec(deleteRepoSQL, id)
+	return err
 }

@@ -3,7 +3,7 @@ import RepoList from "./RepoList";
 import BuildList from "./BuildList";
 import api from "./api";
 import {T, formatError} from "./Utils";
-import {Notification} from '@canonical/react-components'
+import {Row, Notification} from '@canonical/react-components'
 import ImageList from "./ImageList";
 import ConnectionList from "./ConnectionList";
 
@@ -111,6 +111,17 @@ class Home extends Component {
         })
     }
 
+    handleRepoDelete = (repoId, deleteBuilds) => {
+        api.repoDelete(repoId, deleteBuilds).then(response => {
+            this.getDataRepos()
+            this.getDataBuilds()
+        })
+        .catch(e => {
+            console.log(formatError(e.response.data))
+            this.setState({error: formatError(e.response.data), message: ''});
+        })
+    }
+
     handleRepoCreateClick = () => {
         this.getDataRepos()
     }
@@ -143,9 +154,11 @@ class Home extends Component {
             <div>
                 {
                     this.state.error ?
-                        <Notification type="negative" status={T('error') + ':'}>
-                            {this.state.error}
-                        </Notification>
+                        <Row>
+                            <Notification type="negative" status={T('error') + ':'}>
+                                {this.state.error}
+                            </Notification>
+                        </Row>
                         : ''
                 }
                 {
@@ -158,7 +171,7 @@ class Home extends Component {
                         '' :
                         <ImageList images={this.state.images} />
                 }
-                <RepoList records={this.state.repos} onBuild={this.handleBuildClick} onCreate={this.handleRepoCreateClick}/>
+                <RepoList records={this.state.repos} onBuild={this.handleBuildClick} onCreate={this.handleRepoCreateClick} onDelete={this.handleRepoDelete} />
                 <BuildList records={this.state.builds} onDelete={this.handleBuildDelete}/>
             </div>
         );

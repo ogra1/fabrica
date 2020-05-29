@@ -3,6 +3,8 @@ import api from "./api";
 import {formatError, T} from "./Utils";
 import RepoAdd from "./RepoAdd";
 import {MainTable, Row, Button} from "@canonical/react-components";
+import RepoActions from "./RepoActions";
+import RepoDelete from "./RepoDelete";
 
 class RepoList extends Component {
     constructor(props) {
@@ -10,6 +12,8 @@ class RepoList extends Component {
         this.state = {
             showAdd: false,
             repo: '',
+            showDelete: false,
+            delete: {deleteBuilds:false},
         }
     }
 
@@ -20,7 +24,35 @@ class RepoList extends Component {
 
     handleCancelClick = (e) => {
         e.preventDefault()
-        this.setState({showAdd: false})
+        this.setState({showAdd: false, showDelete: false, delete: {deleteBuilds:false}})
+    }
+
+    handleDeleteBuildsClick = (e) => {
+        e.preventDefault()
+        let del = this.state.delete
+        del.deleteBuilds = !del.deleteBuilds
+        this.setState({delete: del})
+    }
+
+    handleDeleteClick = (e) => {
+        e.preventDefault()
+        let id = e.target.getAttribute('data-key')
+
+        let rr = this.props.records.filter(r => {
+            return r.id === id
+        })
+
+        let del = this.state.delete
+        del.id = id
+        del.repo = rr[0].repo
+        this.setState({showDelete: true, delete: del})
+    }
+
+    handleDeleteDo = (e) => {
+        e.preventDefault()
+
+        this.props.onDelete(this.state.delete.id, this.state.delete.deleteBuilds)
+        this.setState({showDelete: false, delete: {deleteBuilds:false}})
     }
 
     handleRepoChange = (e) => {
@@ -49,7 +81,7 @@ class RepoList extends Component {
                     {content: r.hash},
                     {content: r.created},
                     {content: r.modified},
-                    {content: <Button data-key={r.id} onClick={this.props.onBuild}>{T('build')}</Button>}
+                    {content: <RepoActions id={r.id} onBuild={this.props.onBuild} onDelete={this.handleDeleteClick} />}
                     ],
             }
         })
@@ -67,6 +99,10 @@ class RepoList extends Component {
                         <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick} onChange={this.handleRepoChange} repo={this.state.repo}/>
                         :
                         ''
+                    }
+                    {this.state.showDelete ?
+                        <RepoDelete onCancel={this.handleCancelClick} onConfirm={this.handleDeleteDo} onDeleteBuilds={this.handleDeleteBuildsClick} deleteBuilds={this.state.delete.deleteBuilds} message={this.state.delete.repo} />
+                        : ''
                     }
                     <MainTable headers={[
                     {

@@ -31,6 +31,7 @@ type BuildSrv interface {
 	BuildDelete(id string) error
 	RepoCreate(repo string) (string, error)
 	RepoList(watch bool) ([]domain.Repo, error)
+	RepoDelete(id string, deleteBuilds bool) error
 }
 
 // BuildService implements a build service
