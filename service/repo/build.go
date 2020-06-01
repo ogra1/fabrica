@@ -25,11 +25,12 @@ const (
 
 // BuildSrv interface for building images
 type BuildSrv interface {
-	Build(repo string) (string, error)
+	Build(repoID string) (string, error)
 	List() ([]domain.Build, error)
 	BuildGet(id string) (domain.Build, error)
 	BuildDelete(id string) error
-	RepoCreate(repo string) (string, error)
+
+	RepoCreate(repo, branch string) (string, error)
 	RepoList(watch bool) ([]domain.Repo, error)
 	RepoDelete(id string, deleteBuilds bool) error
 }
@@ -55,7 +56,7 @@ func (bld *BuildService) Build(repoID string) (string, error) {
 	}
 
 	// Store the build request
-	buildID, err := bld.Datastore.BuildCreate(repo.Name, repo.Repo)
+	buildID, err := bld.Datastore.BuildCreate(repo.Name, repo.Repo, repo.Branch)
 	if err != nil {
 		return buildID, fmt.Errorf("error storing build request: %v", err)
 	}

@@ -8,7 +8,8 @@ import (
 )
 
 type buildRequest struct {
-	Repo string `json:"repo"`
+	Repo   string `json:"repo"`
+	Branch string `json:"branch"`
 }
 
 // Build initiates a build

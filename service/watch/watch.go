@@ -103,7 +103,7 @@ func (srv *Service) checkForUpdates(r domain.Repo) (string, bool, error) {
 
 	for _, ref := range refs {
 		log.Println("Git Ref:", ref.Name().String(), ref.Hash().String())
-		if checkBranch("master", ref) {
+		if checkBranch(r.Branch, ref) {
 			return ref.Hash().String(), r.LastCommit != ref.Hash().String(), nil
 		}
 	}
@@ -111,6 +111,6 @@ func (srv *Service) checkForUpdates(r domain.Repo) (string, bool, error) {
 }
 
 func checkBranch(branch string, ref *plumbing.Reference) bool {
-	name := fmt.Sprintf("/refs/heads/%s", branch)
+	name := fmt.Sprintf("refs/heads/%s", branch)
 	return ref.Name().IsBranch() && ref.Name().String() == name
 }

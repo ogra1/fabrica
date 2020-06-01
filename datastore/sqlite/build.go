@@ -15,12 +15,15 @@ const createBuildTableSQL string = `
 		status           varchar(20) default '',
 		created          timestamp default current_timestamp,
         download         varchar(20) default '',
-		duration         int default 0
+		duration         int default 0,
+		branch           varchar(200) default 'master'
 	)
 `
-
+const alterBuildTableSQL string = `
+	ALTER TABLE build ADD COLUMN branch varchar(200) default 'master'
+`
 const addBuildSQL = `
-	INSERT INTO build (id, name, repo) VALUES ($1, $2, $3)
+	INSERT INTO build (id, name, repo, branch) VALUES ($1, $2, $3, $4)
 `
 const updateBuildSQL = `
 	UPDATE build SET status=$1,duration=$2 WHERE id=$3
@@ -32,12 +35,12 @@ const updateBuildDownloadSQL = `
 	UPDATE build SET download=$1 WHERE id=$2
 `
 const listBuildSQL = `
-	SELECT id, name, repo, status, created, download, duration
+	SELECT id, name, repo, status, created, download, duration, branch
 	FROM build
 	ORDER BY created DESC
 `
 const getBuildSQL = `
-	SELECT id, name, repo, status, created, download
+	SELECT id, name, repo, status, created, download, branch
 	FROM build
 	WHERE id=$1
 `
@@ -45,15 +48,15 @@ const deleteBuildSQL = `
 	DELETE FROM build WHERE id=$1
 `
 const listBuildForRepoSQL = `
-	SELECT id, name, repo, status, created, download
+	SELECT id, name, repo, status, created, download, branch
 	FROM build
-	WHERE repo=$1
+	WHERE repo=$1 and branch=$2
 `
 
 // BuildCreate stores a new build request
-func (db *DB) BuildCreate(name, repo string) (string, error) {
+func (db *DB) BuildCreate(name, repo, branch string) (string, error) {
 	id := xid.New()
-	_, err := db.Exec(addBuildSQL, id.String(), name, repo)
+	_, err := db.Exec(addBuildSQL, id.String(), name, repo, branch)
 	return id.String(), err
 }
 
@@ -85,7 +88,7 @@ func (db *DB) BuildList() ([]domain.Build, error) {
 
 	for rows.Next() {
 		r := domain.Build{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Duration)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Duration, &r.Branch)
 		if err != nil {
 			return logs, err
 		}
@@ -98,7 +101,7 @@ func (db *DB) BuildList() ([]domain.Build, error) {
 // BuildGet fetches a build with its logs
 func (db *DB) BuildGet(id string) (domain.Build, error) {
 	r := domain.Build{}
-	err := db.QueryRow(getBuildSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download)
+	err := db.QueryRow(getBuildSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Branch)
 	switch {
 	case err == sql.ErrNoRows:
 		return r, err
@@ -125,9 +128,9 @@ func (db *DB) BuildDelete(id string) error {
 }
 
 // BuildListForRepo get the list of builds for a repo
-func (db *DB) BuildListForRepo(name string) ([]domain.Build, error) {
+func (db *DB) BuildListForRepo(name, branch string) ([]domain.Build, error) {
 	logs := []domain.Build{}
-	rows, err := db.Query(listBuildForRepoSQL, name)
+	rows, err := db.Query(listBuildForRepoSQL, name, branch)
 	if err != nil {
 		return logs, err
 	}
@@ -135,7 +138,7 @@ func (db *DB) BuildListForRepo(name string) ([]domain.Build, error) {
 
 	for rows.Next() {
 		r := domain.Build{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Branch)
 		if err != nil {
 			return logs, err
 		}
