@@ -7,6 +7,7 @@ type Repo struct {
 	ID         string    `json:"id"`
 	Name       string    `json:"name"`
 	Repo       string    `json:"repo"`
+	Branch     string    `json:"branch"`
 	LastCommit string    `json:"hash"`
 	Created    time.Time `json:"created"`
 	Modified   time.Time `json:"modified"`
@@ -17,6 +18,7 @@ type Build struct {
 	ID       string     `json:"id"`
 	Name     string     `json:"name"`
 	Repo     string     `json:"repo"`
+	Branch   string     `json:"branch"`
 	Status   string     `json:"status"`
 	Download string     `json:"download"`
 	Duration int        `json:"duration"`

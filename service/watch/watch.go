@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
@@ -69,15 +70,15 @@ func (srv *Service) Watch() {
 				continue
 			}
 
+			// update the last commit hash (to avoid repeating builds)
+			srv.Datastore.RepoUpdateHash(r.ID, hash)
+
 			// trigger the build
 			if _, err := srv.BuildSrv.Build(r.ID); err != nil {
 				log.Println("Error building snap:", err)
 				// check the next repo
 				continue
 			}
-
-			// update the last commit hash
-			srv.Datastore.RepoUpdateHash(r.ID, hash)
 
 			// Don't process any more repos until the next cycle
 			break
@@ -101,9 +102,14 @@ func (srv *Service) checkForUpdates(r domain.Repo) (string, bool, error) {
 	}
 
 	for _, ref := range refs {
-		if ref.Name().IsBranch() {
+		if checkBranch(r.Branch, ref) {
 			return ref.Hash().String(), r.LastCommit != ref.Hash().String(), nil
 		}
 	}
 	return "", false, fmt.Errorf("cannot find the repo HEAD")
+}
+
+func checkBranch(branch string, ref *plumbing.Reference) bool {
+	name := fmt.Sprintf("refs/heads/%s", branch)
+	return ref.Name().IsBranch() && ref.Name().String() == name
 }

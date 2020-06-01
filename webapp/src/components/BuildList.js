@@ -68,6 +68,7 @@ class BuildList extends Component {
                 columns:[
                     {content: r.name, role: 'rowheader'},
                     {content: r.repo},
+                    {content: r.branch},
                     {content: r.created},
                     {content: <BuildStatus status={r.status} />},
                     {content: dur, className: "col-medium u-align--left"},
@@ -89,13 +90,15 @@ class BuildList extends Component {
                     }, {
                         content: T('repo'), className: "col-large"
                     }, {
+                        content: T('branch'),
+                    }, {
                         content: T('created'),
                     }, {
                         content: T('status'), className: "u-align--center col-small"
                     }, {
-                        content: T('duration'), className: "col-medium u-align--left",
+                        content: T('duration'), className: "col u-align--left",
                     }, {
-                        content: T('actions'), className: "col-medium u-align--left"
+                        content: T('actions'), className: "col u-align--left"
                     }]} rows={data} />
                 </Row>
             </section>

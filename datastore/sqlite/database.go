@@ -47,8 +47,12 @@ func (db *DB) CreateTables() error {
 	if _, err := db.Exec(createBuildTableSQL); err != nil {
 		return err
 	}
-	_, err := db.Exec(createBuildLogTableSQL)
-	return err
+	if _, err := db.Exec(createBuildLogTableSQL); err != nil {
+		return err
+	}
+	_, _ = db.Exec(alterRepoTableSQL)
+	_, _ = db.Exec(alterBuildTableSQL)
+	return nil
 }
 
 // GetPath returns the full path to the data file

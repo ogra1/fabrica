@@ -1,6 +1,7 @@
 export default {
     'add': 'Add',
     'add-repo': 'Add repository',
+    'branch': 'Branch',
     'build': 'Build',
     'build-log': 'Build Log',
     'build-requests': 'Latest builds',

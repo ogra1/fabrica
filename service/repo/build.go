@@ -3,6 +3,7 @@ package repo
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
 	"github.com/ogra1/fabrica/service"
@@ -25,11 +26,12 @@ const (
 
 // BuildSrv interface for building images
 type BuildSrv interface {
-	Build(repo string) (string, error)
+	Build(repoID string) (string, error)
 	List() ([]domain.Build, error)
 	BuildGet(id string) (domain.Build, error)
 	BuildDelete(id string) error
-	RepoCreate(repo string) (string, error)
+
+	RepoCreate(repo, branch string) (string, error)
 	RepoList(watch bool) ([]domain.Repo, error)
 	RepoDelete(id string, deleteBuilds bool) error
 }
@@ -55,7 +57,7 @@ func (bld *BuildService) Build(repoID string) (string, error) {
 	}
 
 	// Store the build request
-	buildID, err := bld.Datastore.BuildCreate(repo.Name, repo.Repo)
+	buildID, err := bld.Datastore.BuildCreate(repo.Name, repo.Repo, repo.Branch)
 	if err != nil {
 		return buildID, fmt.Errorf("error storing build request: %v", err)
 	}
@@ -131,9 +133,12 @@ func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 	// Clone the repo
 	p := service.GetPath(r.ID)
 	log.Println("git", "clone", "--depth", "1", r.Repo, p)
+	refBranch := plumbing.NewBranchReferenceName(r.Branch)
 	gitRepo, err := git.PlainClone(p, false, &git.CloneOptions{
-		URL:   r.Repo,
-		Depth: 1,
+		URL:           r.Repo,
+		ReferenceName: refBranch,
+		SingleBranch:  true,
+		Depth:         1,
 	})
 	if err != nil {
 		log.Println("Error cloning repo:", err)

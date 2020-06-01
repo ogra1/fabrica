@@ -16,10 +16,10 @@ class Home extends Component {
             images: [{name: 'fabrica-bionic', available: true}, {name: 'fabrica-xenial', available: false}],
             connections: [{name: 'lxd', available: true}, {name: 'system-observe', available: false}],
             repos: [
-                {id:'aaa', name:'test', repo:'github.com/TestCompany/test', hash:'abcdef', created:'2020-05-14T19:01:34Z', modified:'2020-05-14T19:01:34Z'}
+                {id:'aaa', name:'test', repo:'github.com/TestCompany/test', branch:'master', hash:'abcdef', created:'2020-05-14T19:01:34Z', modified:'2020-05-14T19:01:34Z'}
             ],
             builds: [
-                {id:'bbb', name:'test', repo:'github.com/TestCompany/test', status:'complete', duration: 222, created:'2020-05-14T19:30:34Z'}
+                {id:'bbb', name:'test', repo:'github.com/TestCompany/test', branch:'master', status:'complete', duration: 222, created:'2020-05-14T19:30:34Z'}
             ],
         }
     }

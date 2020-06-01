@@ -7,10 +7,10 @@ import (
 )
 
 // RepoCreate creates a new repo
-func (bld *BuildService) RepoCreate(repo string) (string, error) {
+func (bld *BuildService) RepoCreate(repo, branch string) (string, error) {
 	// Store the build request
 	name := nameFromRepo(repo)
-	repoID, err := bld.Datastore.RepoCreate(name, repo)
+	repoID, err := bld.Datastore.RepoCreate(name, repo, branch)
 	if err != nil {
 		return repoID, fmt.Errorf("error storing repo: %v", err)
 	}
@@ -39,7 +39,7 @@ func (bld *BuildService) RepoDelete(id string, deleteBuilds bool) error {
 	}
 
 	// Get the builds for this repo
-	builds, err := bld.Datastore.BuildListForRepo(repo.Repo)
+	builds, err := bld.Datastore.BuildListForRepo(repo.Repo, repo.Branch)
 	if err != nil {
 		return fmt.Errorf("error finding builds: %v", err)
 	}

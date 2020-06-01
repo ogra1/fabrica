@@ -12,6 +12,7 @@ class RepoList extends Component {
         this.state = {
             showAdd: false,
             repo: '',
+            branch: 'master',
             showDelete: false,
             delete: {deleteBuilds:false},
         }
@@ -60,9 +61,14 @@ class RepoList extends Component {
         this.setState({repo: e.target.value})
     }
 
+    handleBranchChange = (e) => {
+        e.preventDefault()
+        this.setState({branch: e.target.value})
+    }
+
     handleRepoCreate = (e) => {
         e.preventDefault()
-        api.repoCreate(this.state.repo).then(response => {
+        api.repoCreate(this.state.repo, this.state.branch).then(response => {
             this.props.onCreate()
             this.setState({error:'', showAdd: false, repo:''})
         })
@@ -78,6 +84,7 @@ class RepoList extends Component {
                 columns:[
                     {content: r.name, role: 'rowheader'},
                     {content: r.repo},
+                    {content: r.branch},
                     {content: r.hash},
                     {content: r.created},
                     {content: r.modified},
@@ -96,7 +103,7 @@ class RepoList extends Component {
                         </Button>
                     </div>
                     {this.state.showAdd ?
-                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick} onChange={this.handleRepoChange} repo={this.state.repo}/>
+                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick} onChange={this.handleRepoChange} onChangeBranch={this.handleBranchChange} repo={this.state.repo} branch={this.state.branch} />
                         :
                         ''
                     }
@@ -108,8 +115,10 @@ class RepoList extends Component {
                     {
                         content: T('name')
                     }, {
-                        content: T('repo'),
-                        className: "col-large"
+                            content: T('repo'),
+                            className: "col-medium"
+                    }, {
+                        content: T('branch'),
                     }, {
                         content: T('last-commit'),
                     }, {

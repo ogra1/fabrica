@@ -22,8 +22,8 @@ let service = {
         return axios.get(constants.baseUrl + 'repos');
     },
 
-    repoCreate: (repo, cancelCallback) => {
-        return axios.post(constants.baseUrl + 'repos', {repo: repo});
+    repoCreate: (repo, branch, cancelCallback) => {
+        return axios.post(constants.baseUrl + 'repos', {repo: repo, branch: branch});
     },
 
     repoDelete: (repoId, deleteBuilds, cancelCallback) => {
