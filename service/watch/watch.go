@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
@@ -101,9 +102,15 @@ func (srv *Service) checkForUpdates(r domain.Repo) (string, bool, error) {
 	}
 
 	for _, ref := range refs {
-		if ref.Name().IsBranch() {
+		log.Println("Git Ref:", ref.Name().String(), ref.Hash().String())
+		if checkBranch("master", ref) {
 			return ref.Hash().String(), r.LastCommit != ref.Hash().String(), nil
 		}
 	}
 	return "", false, fmt.Errorf("cannot find the repo HEAD")
+}
+
+func checkBranch(branch string, ref *plumbing.Reference) bool {
+	name := fmt.Sprintf("/refs/heads/%s", branch)
+	return ref.Name().IsBranch() && ref.Name().String() == name
 }
