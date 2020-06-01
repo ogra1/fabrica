@@ -70,15 +70,15 @@ func (srv *Service) Watch() {
 				continue
 			}
 
+			// update the last commit hash (to avoid repeating builds)
+			srv.Datastore.RepoUpdateHash(r.ID, hash)
+
 			// trigger the build
 			if _, err := srv.BuildSrv.Build(r.ID); err != nil {
 				log.Println("Error building snap:", err)
 				// check the next repo
 				continue
 			}
-
-			// update the last commit hash
-			srv.Datastore.RepoUpdateHash(r.ID, hash)
 
 			// Don't process any more repos until the next cycle
 			break
