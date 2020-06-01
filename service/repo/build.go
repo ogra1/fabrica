@@ -3,6 +3,7 @@ package repo
 import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
 	"github.com/ogra1/fabrica/service"
@@ -132,9 +133,12 @@ func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
 	// Clone the repo
 	p := service.GetPath(r.ID)
 	log.Println("git", "clone", "--depth", "1", r.Repo, p)
+	refBranch := plumbing.NewBranchReferenceName(r.Branch)
 	gitRepo, err := git.PlainClone(p, false, &git.CloneOptions{
-		URL:   r.Repo,
-		Depth: 1,
+		URL:           r.Repo,
+		ReferenceName: refBranch,
+		SingleBranch:  true,
+		Depth:         1,
 	})
 	if err != nil {
 		log.Println("Error cloning repo:", err)

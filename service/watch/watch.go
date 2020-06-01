@@ -102,7 +102,6 @@ func (srv *Service) checkForUpdates(r domain.Repo) (string, bool, error) {
 	}
 
 	for _, ref := range refs {
-		log.Println("Git Ref:", ref.Name().String(), ref.Hash().String())
 		if checkBranch(r.Branch, ref) {
 			return ref.Hash().String(), r.LastCommit != ref.Hash().String(), nil
 		}
