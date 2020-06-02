@@ -3,11 +3,11 @@ import React from 'react';
 
 function getIcon(props) {
     if (props.status==='complete') {
-        return <i className="p-icon--success"></i>
+        return <i className="p-icon--success back-one"></i>
     } else if (props.status==='failed') {
-        return <i className="p-icon--error"></i>
+        return <i className="p-icon--error back-one"></i>
     } else {
-        return <i className="p-icon--spinner"></i>
+        return <i className="p-icon--spinner back-one"></i>
     }
 }
 
