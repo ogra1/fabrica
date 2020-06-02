@@ -43,5 +43,6 @@ type SettingAvailable struct {
 // SystemResources is the monitor of system resources
 type SystemResources struct {
 	CPU    float64 `json:"cpu"`
-	Memory uint64  `json:"memory"`
+	Memory float64 `json:"memory"`
+	Disk   float64 `json:"disk"`
 }
