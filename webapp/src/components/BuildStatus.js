@@ -1,4 +1,5 @@
 import React from 'react';
+import {Spinner} from "@canonical/react-components";
 
 
 function getIcon(props) {
@@ -7,7 +8,7 @@ function getIcon(props) {
     } else if (props.status==='failed') {
         return <i className="p-icon--error back-one"></i>
     } else {
-        return <i className="p-icon--spinner back-one"></i>
+        return <Spinner />
     }
 }
 
