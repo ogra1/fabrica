@@ -39,3 +39,9 @@ type SettingAvailable struct {
 	Name      string `json:"name"`
 	Available bool   `json:"available"`
 }
+
+// SystemResources is the monitor of system resources
+type SystemResources struct {
+	CPU    float64 `json:"cpu"`
+	Memory uint64  `json:"memory"`
+}

@@ -6,22 +6,25 @@ import (
 	"github.com/ogra1/fabrica/config"
 	"github.com/ogra1/fabrica/service/lxd"
 	"github.com/ogra1/fabrica/service/repo"
+	"github.com/ogra1/fabrica/service/system"
 	"net/http"
 )
 
 // Web implements the web service
 type Web struct {
-	Settings *config.Settings
-	BuildSrv repo.BuildSrv
-	LXDSrv   lxd.Service
+	Settings  *config.Settings
+	BuildSrv  repo.BuildSrv
+	LXDSrv    lxd.Service
+	SystemSrv system.Srv
 }
 
 // NewWebService starts a new web service
-func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv, lxdSrv lxd.Service) *Web {
+func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv, lxdSrv lxd.Service, systemSrv system.Srv) *Web {
 	return &Web{
-		Settings: settings,
-		BuildSrv: bldSrv,
-		LXDSrv:   lxdSrv,
+		Settings:  settings,
+		BuildSrv:  bldSrv,
+		LXDSrv:    lxdSrv,
+		SystemSrv: systemSrv,
 	}
 }
 
@@ -49,6 +52,8 @@ func (srv Web) Router() *mux.Router {
 	router.Handle("/v1/builds/{id}/download", Middleware(http.HandlerFunc(srv.BuildDownload))).Methods("GET")
 	router.Handle("/v1/builds/{id}", Middleware(http.HandlerFunc(srv.BuildLog))).Methods("GET")
 	router.Handle("/v1/builds/{id}", Middleware(http.HandlerFunc(srv.BuildDelete))).Methods("DELETE")
+
+	router.Handle("/v1/system", Middleware(http.HandlerFunc(srv.SystemResources))).Methods("GET")
 
 	// Serve the static path
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(docRoot)))
