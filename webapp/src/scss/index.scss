@@ -80,3 +80,15 @@ section {
 .back-one {
   z-index: -1;
 }
+
+footer {
+  position: fixed !important;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid #eeeeee;
+}
+
+nav.footer {
+  font-size: small;
+}
