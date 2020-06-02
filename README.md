@@ -35,3 +35,6 @@ For testing purposes, it can also be run via:
 ```
 go run fabrica.go
 ```
+
+## Credits
+Icons provided by [Font Awesome](https://fontawesome.com/)
