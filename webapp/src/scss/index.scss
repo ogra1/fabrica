@@ -86,9 +86,14 @@ footer {
   left: 0;
   bottom: 0;
   width: 100%;
-  border-top: 1px solid #eeeeee;
+  margin-bottom: 1em;
 }
 
 nav.footer {
   font-size: small;
+}
+
+.monitor {
+  border: 4px solid #666666;
+  background-color: #eeeeee;
 }

@@ -10,6 +10,7 @@ require (
 	github.com/lxc/lxd v0.0.0-20200518182231-ee995fa4e26b
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/rs/xid v1.2.1
+	github.com/shirou/gopsutil v2.20.5+incompatible
 	gopkg.in/macaroon-bakery.v2 v2.2.0 // indirect
 	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5 // indirect
 	gopkg.in/yaml.v2 v2.3.0

@@ -37,6 +37,10 @@ let service = {
     connectionList: (cancelCallback) => {
         return axios.get(constants.baseUrl + 'check/connections');
     },
+
+    systemMonitor: (cancelCallback) => {
+        return axios.get(constants.baseUrl + 'system');
+    },
 }
 
 export default service
