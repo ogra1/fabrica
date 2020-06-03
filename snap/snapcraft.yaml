@@ -1,11 +1,39 @@
 name: fabrica
 base: core18
-version: '0.9.3'
-summary: Build snaps by simply pointing a web form to a git tree
+version: '1.0.0'
+summary: your own snap build factory
 description: |
   Fabrica is a web service to be run on an lxd appliance. It spawns a
   web ui that allows you to point to cloneable git trees, initializes
-  lxd and builds snap packages of the provided source trees.
+  lxd containers and builds snap packages of the provided source trees.
+
+  To use fabrica you can use the steps below
+
+      snap install lxd
+      sudo lxd init # hit enter for all questions
+      snap install fabrica
+      snap connect fabrica:lxd lxd:lxd
+      snap connect fabrica:mount-observe
+      snap connect fabrica:system-observe
+
+  Now fabrica will come up on port 8000.
+  Point your web browser to http://localhost:8000 (or to the external
+  IP instead of localhost) and add some git tree to it.
+
+  Note that in its current state fabrica only builds snap packages for
+  the used host architecture (i.e. to build armhf or arm64 snaps, you
+  need to use a raspberry Pi4 and install lxd and fabrica on it)
+
+  The branches are checked every 5 minutes for new commits. Builds start
+  automatically when a new commit is detected.
+
+  Since the service is currently only available via http and also has no
+  authentication management, it is recommended to only use it in
+  in-house setups.
+
+  Issues and bugs should be filed at
+
+  https://github.com/ogra1/fabrica/issues
 
 grade: stable
 confinement: strict
