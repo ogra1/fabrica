@@ -28,6 +28,10 @@
   color: #666666;
 }
 
+.environment {
+  color: #cacaca;
+}
+
 pre {
   white-space: pre-wrap;       /* css-3 */
   white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
@@ -81,16 +85,16 @@ section {
   z-index: -1;
 }
 
+.scroll-button {
+  z-index: 10;
+}
+
 footer {
   position: fixed !important;
   left: 0;
   bottom: 0;
   width: 100%;
   margin-bottom: 1em;
-}
-
-nav.footer {
-  font-size: small;
 }
 
 .monitor {

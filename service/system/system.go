@@ -5,6 +5,7 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 	"log"
+	"os"
 )
 
 // Srv interface for system resources
@@ -12,7 +13,14 @@ type Srv interface {
 	CPU() (float64, error)
 	Memory() (float64, error)
 	Disk() (float64, error)
+	Environment() map[string]string
 }
+
+const (
+	snapData    = "SNAP_DATA"
+	snapVersion = "SNAP_VERSION"
+	snapArch    = "SNAP_ARCH"
+)
 
 // Service implements a system service
 type Service struct {
@@ -53,11 +61,19 @@ func (c *Service) Memory() (float64, error) {
 // Disk returns the current disk usage
 func (c *Service) Disk() (float64, error) {
 	// Check the disk space of the host FS not the snap
-	v, err := disk.Usage("/var/lib/snapd/hostfs")
+	v, err := disk.Usage(os.Getenv(snapData))
 	if err != nil {
 		log.Printf("Error getting disk usage: %v\n", err)
 		return 0, err
 	}
 
 	return v.UsedPercent, nil
+}
+
+// Environment gets a set of the environment variables
+func (c *Service) Environment() map[string]string {
+	return map[string]string{
+		"version": os.Getenv(snapVersion),
+		"arch":    os.Getenv(snapArch),
+	}
 }

@@ -9,16 +9,30 @@ import api from "./components/api";
 class App extends Component {
     constructor(props) {
         super(props)
-        this.state = {system: {cpu:0, memory:0, disk:0}}
+        this.state = {
+            system: {cpu:0, memory:0, disk:0},
+            environment: {version:'0.1.0', arch:'arm64'},
+        }
     }
 
     componentDidMount() {
+        this.getSystemEnvironment()
         this.getSystemMonitor()
     }
 
     poll = () => {
         // Polls every 2s
         setTimeout(this.getSystemMonitor.bind(this), 2000);
+    }
+
+    getSystemEnvironment() {
+        api.systemEnvironment().then(response => {
+            this.setState({environment: response.data.record})
+        })
+        .catch(e => {
+            console.log(formatError(e.response.data))
+            this.setState({error: formatError(e.response.data), message: ''});
+        })
     }
 
     getSystemMonitor() {
@@ -39,7 +53,7 @@ class App extends Component {
 
         return (
             <div>
-                <Header/>
+                <Header environment={this.state.environment}/>
 
                 {r.section===''? <Home/> : ''}
                 {r.section==='builds'? <BuildLog buildId={r.sectionId} /> : ''}

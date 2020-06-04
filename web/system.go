@@ -30,3 +30,9 @@ func (srv Web) SystemResources(w http.ResponseWriter, r *http.Request) {
 	}
 	formatRecordResponse(rec, w)
 }
+
+// Environment gets specific environment values
+func (srv Web) Environment(w http.ResponseWriter, r *http.Request) {
+	env := srv.SystemSrv.Environment()
+	formatRecordResponse(env, w)
+}
