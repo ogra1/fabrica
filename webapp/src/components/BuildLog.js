@@ -8,8 +8,8 @@ class BuildLog extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            //build: {logs:[{message:'Getting ready'}, {message:'milestone: Hello world\n\n'}, {message:'This is new'}]},
-            build: {},
+            build: {logs:[{message:'Getting ready'}, {message:'milestone: Hello world\n\n'}, {message:'This is new'}]},
+            //build: {},
             error: '',
             scrollLog: false,
         }
@@ -89,13 +89,13 @@ class BuildLog extends Component {
                     {this.state.scrollLog ?
                         ''
                         :
-                        <Button className="col-2" appearance="neutral" onClick={this.handleScrollClick}>{T('scroll-on')}</Button>
+                        <Button className="col-2 scroll-button" appearance="neutral" onClick={this.handleScrollClick}>{T('scroll-on')}</Button>
                     }
 
                     {this.renderLog()}
 
                     {this.state.scrollLog ?
-                        <Button className="col-2" appearance="brand" onClick={this.handleScrollClick}>{T('scroll-off')}</Button>
+                        <Button className="col-2 scroll-button" appearance="brand" onClick={this.handleScrollClick}>{T('scroll-off')}</Button>
                         :
                         ''
                     }
