@@ -6,7 +6,6 @@ import (
 	"github.com/shirou/gopsutil/mem"
 	"log"
 	"os"
-	"path"
 )
 
 // Srv interface for system resources
@@ -24,10 +23,6 @@ type Service struct {
 func NewSystemService() *Service {
 	return &Service{}
 }
-
-const (
-        snapData = "SNAP_DATA"
-)
 
 // CPU returns the current CPU usage
 func (c *Service) CPU() (float64, error) {
@@ -59,7 +54,7 @@ func (c *Service) Memory() (float64, error) {
 // Disk returns the current disk usage
 func (c *Service) Disk() (float64, error) {
 	// Check the disk space of the host FS not the snap
-	v, err := disk.Usage(os.Getenv(snapData))
+	v, err := disk.Usage(os.Getenv("SNAP_DATA"))
 	if err != nil {
 		log.Printf("Error getting disk usage: %v\n", err)
 		return 0, err
