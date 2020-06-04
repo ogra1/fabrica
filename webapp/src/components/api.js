@@ -41,6 +41,10 @@ let service = {
     systemMonitor: (cancelCallback) => {
         return axios.get(constants.baseUrl + 'system');
     },
+
+    systemEnvironment: (cancelCallback) => {
+        return axios.get(constants.baseUrl + 'system/environment');
+    },
 }
 
 export default service

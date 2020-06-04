@@ -29,6 +29,10 @@ class Header extends Component {
                                 <img src="/static/images/fabrica.png" alt="ubuntu" />
                             </a>
                         </div>
+                        <div className="environment">
+                            <span>{this.props.environment.version}</span>
+                            <span>&nbsp;{this.props.environment.arch}</span>
+                        </div>
                     </div>
 
                     <nav className="p-navigation__nav">
