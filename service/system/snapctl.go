@@ -11,6 +11,7 @@ func (c *Service) SnapCtlGet(key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	log.Println("---snapctl:", key, string(out))
 	return string(out), nil
 }
 

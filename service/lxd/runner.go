@@ -128,7 +128,7 @@ func (run *runner) runBuild(name, repo, branch, distro string) error {
 
 func (run *runner) deleteContainer(cname string) error {
 	run.Datastore.BuildLogCreate(run.BuildID, fmt.Sprintf("milestone: Removing container %s", cname))
-	if err := run.stopAndDeleteContainer(run.Connection, cname); err != nil {
+	if err := stopAndDeleteContainer(run.Connection, cname); err != nil {
 		run.Datastore.BuildLogCreate(run.BuildID, err.Error())
 		return err
 	}
@@ -242,7 +242,8 @@ func (run *runner) copyFile(cname, name, filePath string) (string, error) {
 	return destFile, err
 }
 
-func (run *runner) stopAndDeleteContainer(c lxd.InstanceServer, cname string) error {
+// stopAndDeleteContainer stops and removes the container
+func stopAndDeleteContainer(c lxd.InstanceServer, cname string) error {
 	// Get LXD to start the container (background operation)
 	reqState := api.ContainerStatePut{
 		Action:  "stop",

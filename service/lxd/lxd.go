@@ -17,6 +17,7 @@ type Service interface {
 	RunBuild(buildID, name, repo, branch, distro string) error
 	GetImageAlias(name string) error
 	CheckConnections() []domain.SettingAvailable
+	StopAndDeleteContainer(name string) error
 }
 
 // LXD services
@@ -63,6 +64,17 @@ func (lx *LXD) RunBuild(buildID, name, repo, branch, distro string) error {
 	// Run the build
 	run := newRunner(buildID, lx.Datastore, lx.SystemSrv, c)
 	return run.runBuild(name, repo, branch, distro)
+}
+
+// StopAndDeleteContainer stops and removes a container
+func (lx *LXD) StopAndDeleteContainer(name string) error {
+	c, err := lx.connect()
+	if err != nil {
+		log.Println("Error connecting to LXD:", err)
+		return err
+	}
+
+	return stopAndDeleteContainer(c, name)
 }
 
 func containerName(name string) string {
