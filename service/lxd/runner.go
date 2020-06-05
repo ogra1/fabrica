@@ -58,8 +58,9 @@ func (run *runner) runBuild(name, repo, branch, distro string) error {
 	// Check if we're in debug mode (retaining the container on error)
 	debug := run.SystemSrv.SnapCtlGetBool("debug")
 
-	// Generate the container name
+	// Generate the container name and store it in the database
 	cname := containerName(name)
+	run.Datastore.BuildUpdateContainer(run.BuildID, cname)
 
 	// Create and start the LXD
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Create container "+cname)
