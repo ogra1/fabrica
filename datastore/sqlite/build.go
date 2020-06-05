@@ -16,11 +16,15 @@ const createBuildTableSQL string = `
 		created          timestamp default current_timestamp,
         download         varchar(20) default '',
 		duration         int default 0,
-		branch           varchar(200) default 'master'
+		branch           varchar(200) default 'master',
+		container        varchar(200) default ''
 	)
 `
 const alterBuildTableSQL string = `
 	ALTER TABLE build ADD COLUMN branch varchar(200) default 'master'
+`
+const alterBuildTableSQLcontainer string = `
+	ALTER TABLE build ADD COLUMN container varchar(200) default ''
 `
 const addBuildSQL = `
 	INSERT INTO build (id, name, repo, branch) VALUES ($1, $2, $3, $4)
@@ -34,13 +38,16 @@ const updateBuildStatusSQL = `
 const updateBuildDownloadSQL = `
 	UPDATE build SET download=$1 WHERE id=$2
 `
+const updateBuildContainerSQL = `
+	UPDATE build SET container=$1 WHERE id=$2
+`
 const listBuildSQL = `
-	SELECT id, name, repo, status, created, download, duration, branch
+	SELECT id, name, repo, status, created, download, duration, branch, container
 	FROM build
 	ORDER BY created DESC
 `
 const getBuildSQL = `
-	SELECT id, name, repo, status, created, download, branch
+	SELECT id, name, repo, status, created, download, branch, container
 	FROM build
 	WHERE id=$1
 `
@@ -48,7 +55,7 @@ const deleteBuildSQL = `
 	DELETE FROM build WHERE id=$1
 `
 const listBuildForRepoSQL = `
-	SELECT id, name, repo, status, created, download, branch
+	SELECT id, name, repo, status, created, download, branch, container
 	FROM build
 	WHERE repo=$1 and branch=$2
 `
@@ -77,6 +84,12 @@ func (db *DB) BuildUpdateDownload(id, download string) error {
 	return err
 }
 
+// BuildUpdateContainer updates a build request's container name
+func (db *DB) BuildUpdateContainer(id, container string) error {
+	_, err := db.Exec(updateBuildContainerSQL, container, id)
+	return err
+}
+
 // BuildList get the list of builds
 func (db *DB) BuildList() ([]domain.Build, error) {
 	logs := []domain.Build{}
@@ -88,7 +101,7 @@ func (db *DB) BuildList() ([]domain.Build, error) {
 
 	for rows.Next() {
 		r := domain.Build{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Duration, &r.Branch)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Duration, &r.Branch, &r.Container)
 		if err != nil {
 			return logs, err
 		}
@@ -101,7 +114,7 @@ func (db *DB) BuildList() ([]domain.Build, error) {
 // BuildGet fetches a build with its logs
 func (db *DB) BuildGet(id string) (domain.Build, error) {
 	r := domain.Build{}
-	err := db.QueryRow(getBuildSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Branch)
+	err := db.QueryRow(getBuildSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Branch, &r.Container)
 	switch {
 	case err == sql.ErrNoRows:
 		return r, err
@@ -138,7 +151,7 @@ func (db *DB) BuildListForRepo(name, branch string) ([]domain.Build, error) {
 
 	for rows.Next() {
 		r := domain.Build{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Branch)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.Status, &r.Created, &r.Download, &r.Branch, &r.Container)
 		if err != nil {
 			return logs, err
 		}

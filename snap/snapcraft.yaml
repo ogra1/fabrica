@@ -1,6 +1,6 @@
 name: fabrica
 base: core18
-version: '1.0.1'
+version: '1.0.2'
 summary: your own snap build factory
 description: |
   Fabrica is a web service to be run on an lxd appliance. It spawns a

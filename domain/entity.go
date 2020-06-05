@@ -15,15 +15,16 @@ type Repo struct {
 
 // Build is the requested build
 type Build struct {
-	ID       string     `json:"id"`
-	Name     string     `json:"name"`
-	Repo     string     `json:"repo"`
-	Branch   string     `json:"branch"`
-	Status   string     `json:"status"`
-	Download string     `json:"download"`
-	Duration int        `json:"duration"`
-	Created  time.Time  `json:"created"`
-	Logs     []BuildLog `json:"logs,omitempty"`
+	ID        string     `json:"id"`
+	Name      string     `json:"name"`
+	Repo      string     `json:"repo"`
+	Branch    string     `json:"branch"`
+	Status    string     `json:"status"`
+	Download  string     `json:"download"`
+	Container string     `json:"container"`
+	Duration  int        `json:"duration"`
+	Created   time.Time  `json:"created"`
+	Logs      []BuildLog `json:"logs,omitempty"`
 }
 
 // BuildLog is the log for a build

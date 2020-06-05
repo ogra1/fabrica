@@ -24,9 +24,15 @@ func (bld *BuildService) BuildDelete(id string) error {
 		return err
 	}
 
+	// Remove the stored files
 	if build.Download != "" {
 		dir := path.Dir(build.Download)
 		os.RemoveAll(dir)
+	}
+
+	// Stop and delete the running container
+	if build.Container != "" {
+		bld.LXDSrv.StopAndDeleteContainer(build.Container)
 	}
 
 	// Remove the database records for the build and logs

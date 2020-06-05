@@ -8,6 +8,7 @@ type Datastore interface {
 	BuildCreate(name, repo, branch string) (string, error)
 	BuildUpdate(id, status string, duration int) error
 	BuildUpdateDownload(id, download string) error
+	BuildUpdateContainer(id, container string) error
 	BuildGet(id string) (domain.Build, error)
 	BuildDelete(id string) error
 	BuildListForRepo(name, branch string) ([]domain.Build, error)
