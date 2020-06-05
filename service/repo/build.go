@@ -39,12 +39,14 @@ type BuildSrv interface {
 // BuildService implements a build service
 type BuildService struct {
 	Datastore datastore.Datastore
+	LXDSrv    lxd.Service
 }
 
 // NewBuildService creates a new build service
-func NewBuildService(ds datastore.Datastore) *BuildService {
+func NewBuildService(ds datastore.Datastore, lx lxd.Service) *BuildService {
 	return &BuildService{
 		Datastore: ds,
+		LXDSrv:    lx,
 	}
 }
 
@@ -112,8 +114,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	_ = os.RemoveAll(repoPath)
 
 	// Run the build in an LXD container
-	lx := lxd.NewLXD(buildID, bld.Datastore)
-	if err := lx.RunBuild(repo.Name, repo.Repo, distro); err != nil {
+	if err := bld.LXDSrv.RunBuild(buildID, repo.Name, repo.Repo, distro); err != nil {
 		duration := time.Now().Sub(start).Seconds()
 		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
