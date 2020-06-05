@@ -6,12 +6,27 @@ lxd and builds snap packages of the provided source trees.
 
 Once the snap is installed, it needs its interfaces to be connected:
 ```bash
+snap install lxd
+sudo lxd init # hit enter for all questions
+
 sudo snap install fabrica
 
 sudo snap connect fabrica:lxd lxd:lxd
 sudo snap connect fabrica:mount-observe :mount-observe
 sudo snap connect fabrica:system-observe :system-observe
 ```
+
+## Options
+Fabrica has a configuration option that may be useful for a development environment:
+- `debug=true`: (default false) if a build fails, the LXD container is retained for debugging
+
+Options can be set using a `snap set` command e.g.
+```
+sudo snap set fabrica debug=true
+```
+
+If the `debug` option is used, the container will need to be deleted manually to
+recover disk space.
 
 ## Development Environment
 The build needs Go 13.* and npm installed.

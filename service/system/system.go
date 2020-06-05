@@ -14,6 +14,9 @@ type Srv interface {
 	Memory() (float64, error)
 	Disk() (float64, error)
 	Environment() map[string]string
+
+	SnapCtlGet(key string) (string, error)
+	SnapCtlGetBool(key string) bool
 }
 
 const (

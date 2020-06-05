@@ -21,19 +21,19 @@ func main() {
 
 	// Set up the dependency chain
 	db, _ := sqlite.NewDatabase()
-	buildSrv := repo.NewBuildService(db)
+	systemSrv := system.NewSystemService()
+	lxdSrv := lxd.NewLXD(db, systemSrv)
+	buildSrv := repo.NewBuildService(db, lxdSrv)
 
 	// Set up the service based on the mode
 	if mode == "watch" {
 		watchDaemon(db, buildSrv)
 	} else {
-		webService(settings, buildSrv)
+		webService(settings, buildSrv, lxdSrv, systemSrv)
 	}
 }
 
-func webService(settings *config.Settings, buildSrv *repo.BuildService) {
-	lxdSrv := lxd.NewLXD("", nil)
-	systemSrv := system.NewSystemService()
+func webService(settings *config.Settings, buildSrv *repo.BuildService, lxdSrv lxd.Service, systemSrv system.Srv) {
 	srv := web.NewWebService(settings, buildSrv, lxdSrv, systemSrv)
 	srv.Start()
 }
