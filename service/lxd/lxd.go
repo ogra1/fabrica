@@ -12,24 +12,9 @@ import (
 	"time"
 )
 
-var containerEnv = map[string]string{
-	"FLASH_KERNEL_SKIP":           "true",
-	"DEBIAN_FRONTEND":             "noninteractive",
-	"TERM":                        "xterm",
-	"SNAPCRAFT_BUILD_ENVIRONMENT": "host",
-}
-var containerCmd = [][]string{
-	{"apt", "update"},
-	{"apt", "-y", "upgrade"},
-	{"apt", "-y", "install", "build-essential"},
-	{"apt", "-y", "clean"},
-	{"snap", "install", "snapcraft", "--classic"},
-	{"snap", "list"},
-}
-
 // Service is the interface for the LXD service
 type Service interface {
-	RunBuild(buildID, name, repo, distro string) error
+	RunBuild(buildID, name, repo, branch, distro string) error
 	GetImageAlias(name string) error
 	CheckConnections() []domain.SettingAvailable
 }
@@ -67,7 +52,7 @@ func (lx *LXD) connect() (lxd.InstanceServer, error) {
 }
 
 // RunBuild runs a build by launching a container for the build request
-func (lx *LXD) RunBuild(buildID, name, repo, distro string) error {
+func (lx *LXD) RunBuild(buildID, name, repo, branch, distro string) error {
 	// Create a new LXD connection
 	c, err := lx.connect()
 	if err != nil {
@@ -77,7 +62,7 @@ func (lx *LXD) RunBuild(buildID, name, repo, distro string) error {
 
 	// Run the build
 	run := newRunner(buildID, lx.Datastore, lx.SystemSrv, c)
-	return run.runBuild(name, repo, distro)
+	return run.runBuild(name, repo, branch, distro)
 }
 
 func containerName(name string) string {

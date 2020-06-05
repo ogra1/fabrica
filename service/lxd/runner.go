@@ -15,6 +15,22 @@ import (
 	"strings"
 )
 
+var containerEnv = map[string]string{
+	"FLASH_KERNEL_SKIP":           "true",
+	"DEBIAN_FRONTEND":             "noninteractive",
+	"TERM":                        "xterm",
+	"SNAPCRAFT_BUILD_ENVIRONMENT": "host",
+}
+
+var containerCmd = [][]string{
+	{"apt", "update"},
+	{"apt", "-y", "upgrade"},
+	{"apt", "-y", "install", "build-essential"},
+	{"apt", "-y", "clean"},
+	{"snap", "install", "snapcraft", "--classic"},
+	{"snap", "list"},
+}
+
 // runner services to run one build in LXD
 type runner struct {
 	BuildID    string
@@ -34,7 +50,7 @@ func newRunner(buildID string, ds datastore.Datastore, sysSrv system.Srv, c lxd.
 }
 
 // runBuild launches an LXD container to start the build
-func (run *runner) runBuild(name, repo, distro string) error {
+func (run *runner) runBuild(name, repo, branch, distro string) error {
 	log.Println("Run build:", name, repo, distro)
 	log.Println("Creating and starting container")
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Creating and starting container")
@@ -61,8 +77,8 @@ func (run *runner) runBuild(name, repo, distro string) error {
 	run.waitForNetwork(cname)
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Network is ready")
 
-	// Set up the container
-	commands := append(containerCmd, []string{"git", "clone", "--progress", repo})
+	// Install the pre-requisites in the container and clone the repo
+	commands := append(containerCmd, []string{"git", "clone", "-b", branch, "--progress", repo})
 
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Install dependencies")
 	for _, cmd := range commands {
@@ -80,7 +96,7 @@ func (run *runner) runBuild(name, repo, distro string) error {
 	// Set up the download writer for the snap build
 	dwnWC := writecloser.NewDownloadWriteCloser(run.BuildID, run.Datastore)
 
-	// Run the build
+	// Run the build using snapcraft
 	cmd := []string{"snapcraft"}
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Build snap")
 	if err := run.runInContainer(cname, cmd, "/root/"+name, dwnWC); err != nil {
