@@ -3,6 +3,7 @@ package system
 import (
 	"log"
 	"os/exec"
+	"strings"
 )
 
 // SnapCtlGet fetches a snap configuration option
@@ -11,7 +12,6 @@ func (c *Service) SnapCtlGet(key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	log.Println("---snapctl:", key, string(out))
 	return string(out), nil
 }
 
@@ -23,5 +23,5 @@ func (c *Service) SnapCtlGetBool(key string) bool {
 		return false
 	}
 
-	return value == "true"
+	return strings.Contains(value, "true")
 }
