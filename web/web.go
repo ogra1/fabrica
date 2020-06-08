@@ -59,6 +59,10 @@ func (srv Web) Router() *mux.Router {
 	router.Handle("/v1/system", Middleware(http.HandlerFunc(srv.SystemResources))).Methods("GET")
 	router.Handle("/v1/system/environment", Middleware(http.HandlerFunc(srv.Environment))).Methods("GET")
 
+	router.Handle("/v1/keys", Middleware(http.HandlerFunc(srv.KeyList))).Methods("GET")
+	router.Handle("/v1/keys", Middleware(http.HandlerFunc(srv.KeyCreate))).Methods("POST")
+	router.Handle("/v1/keys/{id}", Middleware(http.HandlerFunc(srv.KeyDelete))).Methods("DELETE")
+
 	// Serve the static path
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(docRoot)))
 	router.PathPrefix("/static/").Handler(fs)

@@ -45,6 +45,10 @@ let service = {
     systemEnvironment: (cancelCallback) => {
         return axios.get(constants.baseUrl + 'system/environment');
     },
+
+    keysList: (cancelCallback) => {
+        return axios.get(constants.baseUrl + 'keys');
+    },
 }
 
 export default service
