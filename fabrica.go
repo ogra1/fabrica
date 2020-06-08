@@ -5,6 +5,7 @@ import (
 	"github.com/ogra1/fabrica/config"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/datastore/sqlite"
+	"github.com/ogra1/fabrica/service/key"
 	"github.com/ogra1/fabrica/service/lxd"
 	"github.com/ogra1/fabrica/service/repo"
 	"github.com/ogra1/fabrica/service/system"
@@ -21,24 +22,25 @@ func main() {
 
 	// Set up the dependency chain
 	db, _ := sqlite.NewDatabase()
-	systemSrv := system.NewSystemService()
+	systemSrv := system.NewSystemService(db)
 	lxdSrv := lxd.NewLXD(db, systemSrv)
 	buildSrv := repo.NewBuildService(db, lxdSrv)
+	keySrv := key.NewKeyService(db)
 
 	// Set up the service based on the mode
 	if mode == "watch" {
-		watchDaemon(db, buildSrv)
+		watchDaemon(db, buildSrv, keySrv)
 	} else {
-		webService(settings, buildSrv, lxdSrv, systemSrv)
+		webService(settings, buildSrv, lxdSrv, systemSrv, keySrv)
 	}
 }
 
-func webService(settings *config.Settings, buildSrv *repo.BuildService, lxdSrv lxd.Service, systemSrv system.Srv) {
-	srv := web.NewWebService(settings, buildSrv, lxdSrv, systemSrv)
+func webService(settings *config.Settings, buildSrv *repo.BuildService, lxdSrv lxd.Service, systemSrv system.Srv, keySrv key.Srv) {
+	srv := web.NewWebService(settings, buildSrv, lxdSrv, systemSrv, keySrv)
 	srv.Start()
 }
 
-func watchDaemon(db datastore.Datastore, buildSrv repo.BuildSrv) {
-	watchSrv := watch.NewWatchService(db, buildSrv)
+func watchDaemon(db datastore.Datastore, buildSrv repo.BuildSrv, keySrv key.Srv) {
+	watchSrv := watch.NewWatchService(db, buildSrv, keySrv)
 	watchSrv.Watch()
 }

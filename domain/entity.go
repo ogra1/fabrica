@@ -47,3 +47,21 @@ type SystemResources struct {
 	Memory float64 `json:"memory"`
 	Disk   float64 `json:"disk"`
 }
+
+// ConfigSetting is a stored config setting
+type ConfigSetting struct {
+	ID   string `json:"id"`
+	Key  string `json:"key"`
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
+
+// Key is an ssh key for a repo
+type Key struct {
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Username string    `json:"username"`
+	Data     string    `json:"data,omitempty"`
+	Password string    `json:"password,omitempty"`
+	Created  time.Time `json:"created"`
+}

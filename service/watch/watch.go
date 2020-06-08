@@ -8,6 +8,7 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
+	"github.com/ogra1/fabrica/service/key"
 	"github.com/ogra1/fabrica/service/repo"
 	"log"
 	"time"
@@ -26,13 +27,15 @@ type Srv interface {
 type Service struct {
 	BuildSrv  repo.BuildSrv
 	Datastore datastore.Datastore
+	KeySrv    key.Srv
 }
 
 // NewWatchService creates a new watch service
-func NewWatchService(ds datastore.Datastore, buildSrv repo.BuildSrv) *Service {
+func NewWatchService(ds datastore.Datastore, buildSrv repo.BuildSrv, keySrv key.Srv) *Service {
 	return &Service{
 		Datastore: ds,
 		BuildSrv:  buildSrv,
+		KeySrv:    keySrv,
 	}
 }
 

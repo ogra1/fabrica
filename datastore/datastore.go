@@ -21,4 +21,12 @@ type Datastore interface {
 	RepoList(watch bool) ([]domain.Repo, error)
 	RepoUpdateHash(id, hash string) error
 	RepoDelete(id string) error
+
+	KeysCreate(name, username, data, password string) (string, error)
+	KeysGet(name string) (domain.Key, error)
+	KeysList() ([]domain.Key, error)
+	KeysDelete(name string) error
+
+	SettingsCreate(key, name, data string) (string, error)
+	SettingsGet(key, name string) (domain.ConfigSetting, error)
 }

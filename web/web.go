@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/ogra1/fabrica/config"
+	"github.com/ogra1/fabrica/service/key"
 	"github.com/ogra1/fabrica/service/lxd"
 	"github.com/ogra1/fabrica/service/repo"
 	"github.com/ogra1/fabrica/service/system"
@@ -16,15 +17,17 @@ type Web struct {
 	BuildSrv  repo.BuildSrv
 	LXDSrv    lxd.Service
 	SystemSrv system.Srv
+	KeySrv    key.Srv
 }
 
 // NewWebService starts a new web service
-func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv, lxdSrv lxd.Service, systemSrv system.Srv) *Web {
+func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv, lxdSrv lxd.Service, systemSrv system.Srv, keySrv key.Srv) *Web {
 	return &Web{
 		Settings:  settings,
 		BuildSrv:  bldSrv,
 		LXDSrv:    lxdSrv,
 		SystemSrv: systemSrv,
+		KeySrv:    keySrv,
 	}
 }
 
