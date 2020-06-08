@@ -2,6 +2,7 @@ package sqlite
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/ogra1/fabrica/domain"
 	"github.com/rs/xid"
 	"log"
@@ -24,7 +25,7 @@ const addKeysSQL = `
 const getKeysSQL = `
 	SELECT id, name, username, data, password
 	FROM keys
-	WHERE name=$1
+	WHERE id=$1
 `
 const listKeysSQL = `
 	SELECT id, name, username, created
@@ -32,7 +33,7 @@ const listKeysSQL = `
 	ORDER BY name
 `
 const deleteKeysSQL = `
-	DELETE FROM keys WHERE name=$1
+	DELETE FROM keys WHERE id=$1
 `
 
 // KeysCreate stores a new ssh key
@@ -59,10 +60,10 @@ func (db *DB) KeysCreate(name, username, data, password string) (string, error) 
 	return id.String(), err
 }
 
-// KeysGet fetches an ssh key by its name
-func (db *DB) KeysGet(name string) (domain.Key, error) {
+// KeysGet fetches an ssh key by its ID
+func (db *DB) KeysGet(id string) (domain.Key, error) {
 	r := domain.Key{}
-	err := db.QueryRow(getKeysSQL, name).Scan(&r.ID, &r.Name, &r.Username, &r.Data, &r.Password)
+	err := db.QueryRow(getKeysSQL, id).Scan(&r.ID, &r.Name, &r.Username, &r.Data, &r.Password)
 	switch {
 	case err == sql.ErrNoRows:
 		return r, err
@@ -112,7 +113,16 @@ func (db *DB) KeysList() ([]domain.Key, error) {
 }
 
 // KeysDelete removes a key from its name
-func (db *DB) KeysDelete(name string) error {
-	_, err := db.Exec(deleteKeysSQL, name)
+func (db *DB) KeysDelete(id string) error {
+	// Check the key is not used
+	repos, err := db.ReposForKey(id)
+	if err != nil {
+		return err
+	}
+	if len(repos) > 0 {
+		return fmt.Errorf("the key is used by %d repositories", len(repos))
+	}
+
+	_, err = db.Exec(deleteKeysSQL, id)
 	return err
 }

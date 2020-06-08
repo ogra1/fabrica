@@ -59,6 +59,7 @@ func (db *DB) CreateTables() error {
 	_, _ = db.Exec(alterRepoTableSQL)
 	_, _ = db.Exec(alterBuildTableSQL)
 	_, _ = db.Exec(alterBuildTableSQLcontainer)
+	_, _ = db.Exec(alterRepoTableKeySQL)
 	return nil
 }
 

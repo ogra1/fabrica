@@ -8,9 +8,9 @@ import (
 // Srv is the interface for the ssh key service
 type Srv interface {
 	Create(name, username, data, password string) (string, error)
-	Get(name string) (domain.Key, error)
+	Get(id string) (domain.Key, error)
 	List() ([]domain.Key, error)
-	Delete(name string) error
+	Delete(id string) error
 }
 
 // Service implements the ssh key service
@@ -31,8 +31,8 @@ func (ks *Service) Create(name, username, data, password string) (string, error)
 }
 
 // Get fetches an existing ssh key
-func (ks *Service) Get(name string) (domain.Key, error) {
-	return ks.Datastore.KeysGet(name)
+func (ks *Service) Get(id string) (domain.Key, error) {
+	return ks.Datastore.KeysGet(id)
 }
 
 // List fetches existing ssh keys
@@ -41,6 +41,6 @@ func (ks *Service) List() ([]domain.Key, error) {
 }
 
 // Delete removes an existing ssh key
-func (ks *Service) Delete(name string) error {
-	return ks.Datastore.KeysDelete(name)
+func (ks *Service) Delete(id string) error {
+	return ks.Datastore.KeysDelete(id)
 }

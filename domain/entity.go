@@ -8,6 +8,7 @@ type Repo struct {
 	Name       string    `json:"name"`
 	Repo       string    `json:"repo"`
 	Branch     string    `json:"branch"`
+	KeyID      string    `json:"keyId"`
 	LastCommit string    `json:"hash"`
 	Created    time.Time `json:"created"`
 	Modified   time.Time `json:"modified"`

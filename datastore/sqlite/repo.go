@@ -15,22 +15,26 @@ const createRepoTableSQL string = `
 		hash             varchar(200) default '',
 		created          timestamp default current_timestamp,
 		modified         timestamp default current_timestamp,
-		branch           varchar(200) default 'master'
+		branch           varchar(200) default 'master',
+		key_id           varchar(200) default ''
 	)
 `
 const alterRepoTableSQL string = `
 	ALTER TABLE repo ADD COLUMN branch varchar(200) default 'master'
 `
+const alterRepoTableKeySQL string = `
+	ALTER TABLE repo ADD COLUMN key_id varchar(200) default ''
+`
 const addRepoSQL = `
 	INSERT INTO repo (id, name, location, branch) VALUES ($1, $2, $3, $4)
 `
 const listRepoSQL = `
-	SELECT id, name, location, hash, created, modified, branch
+	SELECT id, name, location, hash, created, modified, branch, key_id
 	FROM repo
 	ORDER BY name, location
 `
 const listRepoWatchSQL = `
-	SELECT id, name, location, hash, created, modified, branch
+	SELECT id, name, location, hash, created, modified, branch, key_id
 	FROM repo
 	ORDER BY modified
 `
@@ -38,12 +42,17 @@ const updateRepoHashSQL = `
 	UPDATE repo SET hash=$1, modified=current_timestamp WHERE id=$2
 `
 const getRepoSQL = `
-	SELECT id, name, location, hash, created, modified, branch
+	SELECT id, name, location, hash, created, modified, branch, key_id
 	FROM repo
 	WHERE id=$1
 `
 const deleteRepoSQL = `
 	DELETE FROM repo WHERE id=$1
+`
+const listReposForKeySQL = `
+	SELECT id, name, location, hash, created, modified, branch, key_id
+	FROM repo
+	WHERE key_id=$1
 `
 
 // RepoCreate creates a new repository to watch
@@ -70,7 +79,7 @@ func (db *DB) RepoList(watch bool) ([]domain.Repo, error) {
 
 	for rows.Next() {
 		r := domain.Repo{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.LastCommit, &r.Created, &r.Modified, &r.Branch)
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.LastCommit, &r.Created, &r.Modified, &r.Branch, &r.KeyID)
 		if err != nil {
 			return records, err
 		}
@@ -89,7 +98,7 @@ func (db *DB) RepoUpdateHash(id, hash string) error {
 // RepoGet fetches a repo from its ID
 func (db *DB) RepoGet(id string) (domain.Repo, error) {
 	r := domain.Repo{}
-	err := db.QueryRow(getRepoSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.LastCommit, &r.Created, &r.Modified, &r.Branch)
+	err := db.QueryRow(getRepoSQL, id).Scan(&r.ID, &r.Name, &r.Repo, &r.LastCommit, &r.Created, &r.Modified, &r.Branch, &r.KeyID)
 	switch {
 	case err == sql.ErrNoRows:
 		return r, err
@@ -104,4 +113,25 @@ func (db *DB) RepoGet(id string) (domain.Repo, error) {
 func (db *DB) RepoDelete(id string) error {
 	_, err := db.Exec(deleteRepoSQL, id)
 	return err
+}
+
+// ReposForKey get the list repos using a key
+func (db *DB) ReposForKey(keyID string) ([]domain.Repo, error) {
+	records := []domain.Repo{}
+	rows, err := db.Query(listReposForKeySQL, keyID)
+	if err != nil {
+		return records, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		r := domain.Repo{}
+		err := rows.Scan(&r.ID, &r.Name, &r.Repo, &r.LastCommit, &r.Created, &r.Modified, &r.Branch, &r.KeyID)
+		if err != nil {
+			return records, err
+		}
+		records = append(records, r)
+	}
+
+	return records, nil
 }

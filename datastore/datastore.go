@@ -23,9 +23,9 @@ type Datastore interface {
 	RepoDelete(id string) error
 
 	KeysCreate(name, username, data, password string) (string, error)
-	KeysGet(name string) (domain.Key, error)
+	KeysGet(id string) (domain.Key, error)
 	KeysList() ([]domain.Key, error)
-	KeysDelete(name string) error
+	KeysDelete(id string) error
 
 	SettingsCreate(key, name, data string) (string, error)
 	SettingsGet(key, name string) (domain.ConfigSetting, error)
