@@ -49,6 +49,10 @@ let service = {
     keysList: (cancelCallback) => {
         return axios.get(constants.baseUrl + 'keys');
     },
+
+    keysCreate: (key, cancelCallback) => {
+        return axios.post(constants.baseUrl + 'keys', key);
+    },
 }
 
 export default service

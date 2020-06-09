@@ -5,6 +5,7 @@ import {formatError, parseRoute} from "./components/Utils";
 import BuildLog from "./components/BuildLog";
 import Footer from "./components/Footer";
 import api from "./components/api";
+import Settings from "./components/Settings";
 
 class App extends Component {
     constructor(props) {
@@ -57,6 +58,7 @@ class App extends Component {
 
                 {r.section===''? <Home/> : ''}
                 {r.section==='builds'? <BuildLog buildId={r.sectionId} /> : ''}
+                {r.section==='settings'? <Settings /> : ''}
 
                 <Footer system={this.state.system} />
             </div>

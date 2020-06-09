@@ -71,6 +71,7 @@ func (srv Web) Router() *mux.Router {
 	router.Handle("/", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 	router.Handle("/builds/{id}", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 	router.Handle("/builds/{id}/download", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
+	router.Handle("/settings", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 
 	return router
 }
