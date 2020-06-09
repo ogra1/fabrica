@@ -1,6 +1,8 @@
 package lxd
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
@@ -20,6 +22,7 @@ var containerEnv = map[string]string{
 	"DEBIAN_FRONTEND":             "noninteractive",
 	"TERM":                        "xterm",
 	"SNAPCRAFT_BUILD_ENVIRONMENT": "host",
+	"GIT_SSH_COMMAND":             "'ssh -i private_key_file'",
 }
 
 var containerCmd = [][]string{
@@ -50,7 +53,7 @@ func newRunner(buildID string, ds datastore.Datastore, sysSrv system.Srv, c lxd.
 }
 
 // runBuild launches an LXD container to start the build
-func (run *runner) runBuild(name, repo, branch, distro string) error {
+func (run *runner) runBuild(name, repo, branch, keyID, distro string) error {
 	log.Println("Run build:", name, repo, distro)
 	log.Println("Creating and starting container")
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Creating and starting container")
@@ -78,7 +81,15 @@ func (run *runner) runBuild(name, repo, branch, distro string) error {
 	run.waitForNetwork(cname)
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Network is ready")
 
+	// Create the ssh private key file in the container, if needed
+	if err := run.setSSHKey(cname, keyID); err != nil {
+		log.Println("Error creating ssh key:", err)
+		run.Datastore.BuildLogCreate(run.BuildID, err.Error())
+		return err
+	}
+
 	// Install the pre-requisites in the container and clone the repo
+	// The env var sets the ssh key, if needed
 	commands := append(containerCmd, []string{"git", "clone", "-b", branch, "--progress", repo})
 
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Install dependencies")
@@ -124,6 +135,33 @@ func (run *runner) runBuild(name, repo, branch, distro string) error {
 
 	// Remove the container on successful completion
 	return run.deleteContainer(cname)
+}
+
+// setSSHKey sets up the ssh key in the
+func (run *runner) setSSHKey(cname, keyID string) error {
+	if keyID == "" {
+		return nil
+	}
+
+	// Get the ssh key
+	key, err := run.Datastore.KeysGet(keyID)
+	if err != nil {
+		log.Println("Error fetching ssh key:", err)
+		return err
+	}
+
+	// Decode the base64-encoded data
+	data, err := base64.StdEncoding.DecodeString(key.Data)
+	if err != nil {
+		log.Println("Error decoding ssh key:", err)
+		return err
+	}
+
+	// Add the ssh key to the container e.g. private_key_file
+	return run.Connection.CreateContainerFile(cname, "private_key_file", lxd.ContainerFileArgs{
+		Content: bytes.NewReader(data),
+		Mode:    400,
+	})
 }
 
 func (run *runner) deleteContainer(cname string) error {

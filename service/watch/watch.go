@@ -8,6 +8,7 @@ import (
 	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
+	"github.com/ogra1/fabrica/service"
 	"github.com/ogra1/fabrica/service/key"
 	"github.com/ogra1/fabrica/service/repo"
 	"log"
@@ -98,8 +99,10 @@ func (srv *Service) checkForUpdates(r domain.Repo) (string, bool, error) {
 		URLs: []string{r.Repo},
 	})
 
-	// We can then use every Remote functions to retrieve wanted information
-	refs, err := rem.List(&git.ListOptions{})
+	// We can then use git ls-remote functions to retrieve wanted information
+	// Use the ssh key for the repo, if needed
+	options := srv.gitListOptions(r)
+	refs, err := rem.List(options)
 	if err != nil {
 		return "", false, err
 	}
@@ -115,4 +118,27 @@ func (srv *Service) checkForUpdates(r domain.Repo) (string, bool, error) {
 func checkBranch(branch string, ref *plumbing.Reference) bool {
 	name := fmt.Sprintf("refs/heads/%s", branch)
 	return ref.Name().IsBranch() && ref.Name().String() == name
+}
+
+func (srv *Service) gitListOptions(r domain.Repo) *git.ListOptions {
+	opt := &git.ListOptions{}
+	// Check if an ssh key is needed
+	if r.KeyID == "" {
+		return opt
+	}
+
+	// Get the ssh key
+	key, err := srv.Datastore.KeysGet(r.KeyID)
+	if err != nil {
+		log.Println("Error fetching ssh key:", err)
+		return opt
+	}
+
+	// Set up the auth method
+	pubKeys, err := service.GitAuth(key)
+	if err != nil {
+		return opt
+	}
+	opt.Auth = pubKeys
+	return opt
 }

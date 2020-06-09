@@ -6,6 +6,7 @@ import (
 	"github.com/ogra1/fabrica/domain"
 	"github.com/rs/xid"
 	"log"
+	"strings"
 )
 
 const createKeysTableSQL = `
@@ -45,20 +46,17 @@ func (db *DB) KeysCreate(name, username, data, password string) (string, error) 
 	}
 
 	// Encrypt the secret key
-	dataEnc, err := encryptKey(secret, data)
+	dataEnc, err := encryptKey(data, secret)
 	if err != nil {
 		return "", err
 	}
-	passwordEnc, err := encryptKey(secret, password)
+	passwordEnc, err := encryptKey(password, secret)
 	if err != nil {
 		return "", err
 	}
-
-	log.Println("---", name, username, data, password)
 
 	// Save the encrypted record
 	id := xid.New()
-	log.Println("---", id.String(), name, username, dataEnc, passwordEnc)
 	_, err = db.Exec(addKeysSQL, id.String(), name, username, dataEnc, passwordEnc)
 	return id.String(), err
 }
@@ -90,6 +88,9 @@ func (db *DB) KeysGet(id string) (domain.Key, error) {
 	if err != nil {
 		return r, err
 	}
+
+	r.Data = strings.TrimSpace(r.Data)
+	r.Password = strings.TrimSpace(r.Password)
 
 	return r, nil
 }

@@ -23,7 +23,7 @@ const createSettingsTableSQL string = `
 	)
 `
 const addSettingSQL = `
-	INSERT INTO settings (id, key, name, data) VALUES ($1, $2, $3)
+	INSERT INTO settings (id, key, name, data) VALUES ($1, $2, $3, $4)
 `
 const getSettingSQL = `
 	SELECT id, key, name, data

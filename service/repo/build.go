@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/transport"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/domain"
 	"github.com/ogra1/fabrica/service"
@@ -75,7 +76,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	// Update build status
 	_ = bld.Datastore.BuildUpdate(buildID, statusInProgress, 0)
 
-	// Clone the repo and get the last commit tag
+	// Clone the repo and get the last commit tag (we need the repo to parse the snapcraft.yaml file)
 	repoPath, hash, err := bld.cloneRepo(repo)
 	if err != nil {
 		log.Println("Cloning repository:", err)
@@ -99,7 +100,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	log.Printf("snapcraft.yaml: %s\n", f)
 	bld.Datastore.BuildLogCreate(buildID, fmt.Sprintf("snapcraft.yaml: %s\n", f))
 
-	// Get the distro from looking at the `base` keyword
+	// Get the distro from looking at the `base` keyword in snapcraft.yaml
 	distro, err := bld.getDistroFromYAML(f)
 	if err != nil {
 		log.Println("Get distro:", err)
@@ -114,7 +115,7 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 	_ = os.RemoveAll(repoPath)
 
 	// Run the build in an LXD container
-	if err := bld.LXDSrv.RunBuild(buildID, repo.Name, repo.Repo, repo.Branch, distro); err != nil {
+	if err := bld.LXDSrv.RunBuild(buildID, repo.Name, repo.Repo, repo.Branch, repo.KeyID, distro); err != nil {
 		duration := time.Now().Sub(start).Seconds()
 		_ = bld.Datastore.BuildUpdate(buildID, statusFailed, int(duration))
 		return err
@@ -131,16 +132,30 @@ func (bld *BuildService) requestBuild(repo domain.Repo, buildID string) error {
 
 // cloneRepo the repo and return the path and tag
 func (bld *BuildService) cloneRepo(r domain.Repo) (string, string, error) {
-	// Clone the repo
+	// Prepare to clone the repo
 	p := service.GetPath(r.ID)
 	log.Println("git", "clone", "--depth", "1", r.Repo, p)
 	refBranch := plumbing.NewBranchReferenceName(r.Branch)
-	gitRepo, err := git.PlainClone(p, false, &git.CloneOptions{
+
+	cloneOptions := &git.CloneOptions{
 		URL:           r.Repo,
 		ReferenceName: refBranch,
 		SingleBranch:  true,
 		Depth:         1,
-	})
+	}
+
+	// Set the auth options, if needed
+	if r.KeyID != "" {
+		auth, err := bld.gitAuth(r)
+		if err != nil {
+			log.Println("Error setting auth option:", err)
+			return "", "", err
+		}
+		cloneOptions.Auth = auth
+	}
+
+	// Clone the repo
+	gitRepo, err := git.PlainClone(p, false, cloneOptions)
 	if err != nil {
 		log.Println("Error cloning repo:", err)
 		return "", "", err
@@ -201,6 +216,18 @@ func (bld *BuildService) getDistroFromYAML(f string) (string, error) {
 	default:
 		return "xenial", nil
 	}
+}
+
+func (bld *BuildService) gitAuth(r domain.Repo) (transport.AuthMethod, error) {
+	// Get the ssh key
+	key, err := bld.Datastore.KeysGet(r.KeyID)
+	if err != nil {
+		log.Println("Error fetching ssh key:", err)
+		return nil, err
+	}
+
+	// Set the ssh auth for git
+	return service.GitAuth(key)
 }
 
 // checkForDownloadFile parses the message to see if we have the download file path

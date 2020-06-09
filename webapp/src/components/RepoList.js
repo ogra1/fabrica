@@ -67,9 +67,14 @@ class RepoList extends Component {
         this.setState({branch: e.target.value})
     }
 
+    handleKeyIdChange = (e) => {
+        e.preventDefault()
+        this.setState({keyId: e.target.value})
+    }
+
     handleRepoCreate = (e) => {
         e.preventDefault()
-        api.repoCreate(this.state.repo, this.state.branch).then(response => {
+        api.repoCreate(this.state.repo, this.state.branch, this.state.keyId).then(response => {
             this.props.onCreate()
             this.setState({error:'', showAdd: false, repo:''})
         })
@@ -104,7 +109,8 @@ class RepoList extends Component {
                         </Button>
                     </div>
                     {this.state.showAdd ?
-                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick} onChange={this.handleRepoChange} onChangeBranch={this.handleBranchChange}
+                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick}
+                                 onChange={this.handleRepoChange} onChangeBranch={this.handleBranchChange} onChangeKeyId={this.handleKeyIdChange}
                                  repo={this.state.repo} branch={this.state.branch} keyId={this.state.keyId} keys={this.props.keys} />
                         :
                         ''
