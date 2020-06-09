@@ -26,7 +26,7 @@ const alterRepoTableKeySQL string = `
 	ALTER TABLE repo ADD COLUMN key_id varchar(200) default ''
 `
 const addRepoSQL = `
-	INSERT INTO repo (id, name, location, branch) VALUES ($1, $2, $3, $4)
+	INSERT INTO repo (id, name, location, branch, key_id) VALUES ($1, $2, $3, $4, $5)
 `
 const listRepoSQL = `
 	SELECT id, name, location, hash, created, modified, branch, key_id
@@ -56,9 +56,9 @@ const listReposForKeySQL = `
 `
 
 // RepoCreate creates a new repository to watch
-func (db *DB) RepoCreate(name, repo, branch string) (string, error) {
+func (db *DB) RepoCreate(name, repo, branch, keyID string) (string, error) {
 	id := xid.New()
-	_, err := db.Exec(addRepoSQL, id.String(), name, repo, branch)
+	_, err := db.Exec(addRepoSQL, id.String(), name, repo, branch, keyID)
 	return id.String(), err
 }
 

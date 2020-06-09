@@ -16,7 +16,7 @@ type Datastore interface {
 	BuildLogCreate(id, message string) error
 	BuildLogList(id string) ([]domain.BuildLog, error)
 
-	RepoCreate(name, repo, branch string) (string, error)
+	RepoCreate(name, repo, branch, keyID string) (string, error)
 	RepoGet(id string) (domain.Repo, error)
 	RepoList(watch bool) ([]domain.Repo, error)
 	RepoUpdateHash(id, hash string) error

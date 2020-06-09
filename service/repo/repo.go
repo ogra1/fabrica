@@ -7,10 +7,10 @@ import (
 )
 
 // RepoCreate creates a new repo
-func (bld *BuildService) RepoCreate(repo, branch string) (string, error) {
+func (bld *BuildService) RepoCreate(repo, branch, keyID string) (string, error) {
 	// Store the build request
 	name := nameFromRepo(repo)
-	repoID, err := bld.Datastore.RepoCreate(name, repo, branch)
+	repoID, err := bld.Datastore.RepoCreate(name, repo, branch, keyID)
 	if err != nil {
 		return repoID, fmt.Errorf("error storing repo: %v", err)
 	}

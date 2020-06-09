@@ -10,6 +10,7 @@ import (
 type buildRequest struct {
 	Repo   string `json:"repo"`
 	Branch string `json:"branch"`
+	KeyID  string `json:"keyId"`
 }
 
 // Build initiates a build

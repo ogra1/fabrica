@@ -13,6 +13,7 @@ class RepoList extends Component {
             showAdd: false,
             repo: '',
             branch: 'master',
+            keyId: '',
             showDelete: false,
             delete: {deleteBuilds:false},
         }
@@ -103,7 +104,8 @@ class RepoList extends Component {
                         </Button>
                     </div>
                     {this.state.showAdd ?
-                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick} onChange={this.handleRepoChange} onChangeBranch={this.handleBranchChange} repo={this.state.repo} branch={this.state.branch} />
+                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick} onChange={this.handleRepoChange} onChangeBranch={this.handleBranchChange}
+                                 repo={this.state.repo} branch={this.state.branch} keyId={this.state.keyId} keys={this.props.keys} />
                         :
                         ''
                     }

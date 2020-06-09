@@ -31,7 +31,7 @@ type BuildSrv interface {
 	BuildGet(id string) (domain.Build, error)
 	BuildDelete(id string) error
 
-	RepoCreate(repo, branch string) (string, error)
+	RepoCreate(repo, branch, keyID string) (string, error)
 	RepoList(watch bool) ([]domain.Repo, error)
 	RepoDelete(id string, deleteBuilds bool) error
 }

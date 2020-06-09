@@ -9,7 +9,7 @@ class KeysAdd extends Component {
     }
     onChangeUser = (e) => {
         e.preventDefault()
-        this.props.onChange('user', e.target.value)
+        this.props.onChange('username', e.target.value)
     }
     onChangeFile = (e) => {
         e.preventDefault()

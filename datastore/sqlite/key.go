@@ -8,7 +8,7 @@ import (
 	"log"
 )
 
-const createKeysTableSQL string = `
+const createKeysTableSQL = `
 	CREATE TABLE IF NOT EXISTS keys (
 		id               varchar(200) primary key not null,
 		name             varchar(200) UNIQUE not null,
@@ -54,8 +54,11 @@ func (db *DB) KeysCreate(name, username, data, password string) (string, error) 
 		return "", err
 	}
 
+	log.Println("---", name, username, data, password)
+
 	// Save the encrypted record
 	id := xid.New()
+	log.Println("---", id.String(), name, username, dataEnc, passwordEnc)
 	_, err = db.Exec(addKeysSQL, id.String(), name, username, dataEnc, passwordEnc)
 	return id.String(), err
 }
