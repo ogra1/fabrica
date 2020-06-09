@@ -10,10 +10,6 @@ class KeysList extends Component {
         this.state = {
             showAdd: false,
             key: {},
-            name: '',
-            username: '',
-            data: '',
-            password: '',
         }
     }
 
@@ -35,9 +31,7 @@ class KeysList extends Component {
 
     handleCreate = (e) => {
         e.preventDefault()
-        let key = {name: this.state.name, username:this.state.username, data: this.state.data, password: this.state.password}
-
-        api.keysCreate(key).then(response => {
+        api.keysCreate(this.state.key).then(response => {
             this.props.onCreate()
             this.setState({error:'', showAdd: false, repo:''})
         })
@@ -70,7 +64,7 @@ class KeysList extends Component {
                 {this.state.showAdd ?
                     <KeysAdd onClick={this.handleCreate} onCancel={this.handleCancelClick}
                              onChange={this.handleOnChange}
-                             name={this.state.name} username={this.state.username} data={this.state.data} password={this.state.password} />
+                             record={this.state.key} />
                     :
                     ''
                 }
