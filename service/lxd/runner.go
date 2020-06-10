@@ -22,7 +22,7 @@ var containerEnv = map[string]string{
 	"DEBIAN_FRONTEND":             "noninteractive",
 	"TERM":                        "xterm",
 	"SNAPCRAFT_BUILD_ENVIRONMENT": "host",
-	"GIT_SSH_COMMAND":             "'ssh -i private_key_file'",
+	"GIT_SSH_COMMAND":             "ssh -i /root/private_key_file -o 'StrictHostKeyChecking no'",
 }
 
 var containerCmd = [][]string{
@@ -158,9 +158,9 @@ func (run *runner) setSSHKey(cname, keyID string) error {
 	}
 
 	// Add the ssh key to the container e.g. private_key_file
-	return run.Connection.CreateContainerFile(cname, "private_key_file", lxd.ContainerFileArgs{
+	return run.Connection.CreateContainerFile(cname, "/root/private_key_file", lxd.ContainerFileArgs{
 		Content: bytes.NewReader(data),
-		Mode:    400,
+		Mode:    0600,
 	})
 }
 

@@ -38,6 +38,10 @@ description: |
 grade: stable
 confinement: strict
 
+layout:
+  /etc/ssh:
+    bind: $SNAP/ssh
+
 apps:
   init:
     command: bin/init.py
@@ -55,6 +59,7 @@ apps:
       - network
       - network-bind
       - system-observe
+      - ssh-keys
   watch:
     command: bin/watch
     daemon: simple
@@ -64,6 +69,7 @@ apps:
       - network
       - network-bind
       - system-observe
+      - ssh-keys
 
 parts:
   react:
@@ -109,6 +115,10 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp bin/init.py $SNAPCRAFT_PART_INSTALL/bin/
 
+      cp -r ssh/ $SNAPCRAFT_PART_INSTALL
+      chmod 644 $SNAPCRAFT_PART_INSTALL/ssh/*
+      chmod 600 $SNAPCRAFT_PART_INSTALL/ssh/ssh_host_rsa_key
+
   application:
     plugin: go
     source: .
@@ -124,3 +134,4 @@ parts:
     plugin: dump
     organize:
       "*": /bin/
+
