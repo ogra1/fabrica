@@ -22,7 +22,6 @@ var containerEnv = map[string]string{
 	"DEBIAN_FRONTEND":             "noninteractive",
 	"TERM":                        "xterm",
 	"SNAPCRAFT_BUILD_ENVIRONMENT": "host",
-	"GIT_SSH_COMMAND":             "ssh -i /root/private_key_file -o 'StrictHostKeyChecking no'",
 }
 
 var containerCmd = [][]string{
@@ -31,7 +30,6 @@ var containerCmd = [][]string{
 	{"apt", "-y", "install", "build-essential"},
 	{"apt", "-y", "clean"},
 	{"snap", "install", "snapcraft", "--classic"},
-	{"snap", "list"},
 }
 
 // runner services to run one build in LXD
@@ -80,6 +78,14 @@ func (run *runner) runBuild(name, repo, branch, keyID, distro string) error {
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Waiting for the network")
 	run.waitForNetwork(cname)
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Network is ready")
+
+	// Copy the ssh_config file to the container as .ssh/config
+	// This has defaults for ssh to handle network issues with accessing various git vendors
+	if err := run.setSSHConfig(cname, dbWC); err != nil {
+		log.Println("Error creating ssh config:", err)
+		run.Datastore.BuildLogCreate(run.BuildID, err.Error())
+		return err
+	}
 
 	// Create the ssh private key file in the container, if needed
 	if err := run.setSSHKey(cname, keyID); err != nil {
@@ -157,10 +163,34 @@ func (run *runner) setSSHKey(cname, keyID string) error {
 		return err
 	}
 
-	// Add the ssh key to the container e.g. private_key_file
-	return run.Connection.CreateContainerFile(cname, "/root/private_key_file", lxd.ContainerFileArgs{
+	// Add the ssh key to the container
+	return run.Connection.CreateContainerFile(cname, "/root/.ssh/id_rsa", lxd.ContainerFileArgs{
 		Content: bytes.NewReader(data),
 		Mode:    0600,
+	})
+}
+
+// setSSHConfig copies the ssh config file to handle ssh defaults for git vendors
+func (run *runner) setSSHConfig(cname string, stdOutErr io.WriteCloser) error {
+	// Create the /root/.ssh directory
+	if err := run.runInContainer(cname, []string{"mkdir", "-p", "/root/.ssh"}, "", stdOutErr); err != nil {
+		return fmt.Errorf("error creating .ssh: %v", err)
+	}
+	if err := run.runInContainer(cname, []string{"chmod", "700", "/root/.ssh"}, "", stdOutErr); err != nil {
+		return fmt.Errorf("error setting .ssh permissions: %v", err)
+	}
+
+	// Get our own config file (provided by the snapcraft layout)
+	f, err := os.Open("/etc/ssh/ssh_config")
+	if err != nil {
+		return fmt.Errorf("error reading /etc/ssh/ssh_config: %v", err)
+	}
+	defer f.Close()
+
+	// Add the ssh config file to the container
+	return run.Connection.CreateContainerFile(cname, "/root/.ssh/config", lxd.ContainerFileArgs{
+		Content: f,
+		Mode:    0644,
 	})
 }
 

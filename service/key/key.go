@@ -7,7 +7,7 @@ import (
 
 // Srv is the interface for the ssh key service
 type Srv interface {
-	Create(name, username, data, password string) (string, error)
+	Create(name, data, password string) (string, error)
 	Get(id string) (domain.Key, error)
 	List() ([]domain.Key, error)
 	Delete(id string) error
@@ -26,8 +26,8 @@ func NewKeyService(ds datastore.Datastore) *Service {
 }
 
 // Create stores a new ssh key
-func (ks *Service) Create(name, username, data, password string) (string, error) {
-	return ks.Datastore.KeysCreate(name, username, data, password)
+func (ks *Service) Create(name, data, password string) (string, error) {
+	return ks.Datastore.KeysCreate(name, data, password)
 }
 
 // Get fetches an existing ssh key

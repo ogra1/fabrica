@@ -61,7 +61,6 @@ type ConfigSetting struct {
 type Key struct {
 	ID       string    `json:"id"`
 	Name     string    `json:"name"`
-	Username string    `json:"username"`
 	Data     string    `json:"data,omitempty"`
 	Password string    `json:"password,omitempty"`
 	Created  time.Time `json:"created"`

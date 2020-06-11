@@ -21,7 +21,7 @@ func GetPath(p string) string {
 }
 
 // GitAuth returns the ssh auth method for git
-func GitAuth(key domain.Key) (transport.AuthMethod, error) {
+func GitAuth(key domain.Key, gitURL string) (transport.AuthMethod, error) {
 	// Decode the private key
 	var data []byte
 	data, err := base64.StdEncoding.DecodeString(key.Data)
@@ -30,8 +30,15 @@ func GitAuth(key domain.Key) (transport.AuthMethod, error) {
 		return nil, err
 	}
 
+	// Get the ssh username from the URL
+	username, err := usernameFromRepo(gitURL)
+	if err != nil {
+		log.Println("Error parsing git URL:", err)
+		return nil, err
+	}
+
 	// Set the ssh auth for git
-	pubKeys, err := ssh.NewPublicKeys(key.Username, data, key.Password)
+	pubKeys, err := ssh.NewPublicKeys(username, data, key.Password)
 	if err != nil {
 		log.Println("Error creating ssh key auth:", err)
 		return nil, err
@@ -40,4 +47,13 @@ func GitAuth(key domain.Key) (transport.AuthMethod, error) {
 	// Disable the known_hosts check
 	pubKeys.HostKeyCallback = ssh2.InsecureIgnoreHostKey()
 	return pubKeys, nil
+}
+
+func usernameFromRepo(u string) (string, error) {
+	endpoint, err := transport.NewEndpoint(u)
+	if err != nil {
+		return "", err
+	}
+
+	return endpoint.User, nil
 }

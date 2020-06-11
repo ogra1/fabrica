@@ -15,7 +15,7 @@ func (srv Web) KeyCreate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	keyID, err := srv.KeySrv.Create(req.Name, req.Username, req.Data, req.Password)
+	keyID, err := srv.KeySrv.Create(req.Name, req.Data, req.Password)
 	if err != nil {
 		formatStandardResponse("key", err.Error(), w)
 		return

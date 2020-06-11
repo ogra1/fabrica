@@ -7,10 +7,6 @@ class KeysAdd extends Component {
         e.preventDefault()
         this.props.onChange('name', e.target.value)
     }
-    onChangeUser = (e) => {
-        e.preventDefault()
-        this.props.onChange('username', e.target.value)
-    }
     onChangeFile = (e) => {
         e.preventDefault()
 
@@ -35,7 +31,6 @@ class KeysAdd extends Component {
                 <Card>
                     <Form>
                         <Input onChange={this.onChangeName} type="text" id="name" placeholder={T('key-name-help')} label={T('key-name')} value={this.props.record.name}/>
-                        <Input onChange={this.onChangeUser} type="text" id="username" placeholder={T('username-repo-help')} label={T('username-repo')} value={this.props.record.username}/>
                         <Input onChange={this.onChangeFile} type="file" id="privateKey" placeholder={T('file')} label={T('private-key')} />
                         <Input onChange={this.onChangePassword} type="password" id="password" placeholder={T('private-key-password-help')} label={T('private-key-password')} value={this.props.record.password}/>
                         <Button onClick={this.props.onClick} appearance="positive">{T('add')}</Button>

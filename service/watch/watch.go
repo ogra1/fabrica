@@ -135,7 +135,7 @@ func (srv *Service) gitListOptions(r domain.Repo) *git.ListOptions {
 	}
 
 	// Set up the auth method
-	pubKeys, err := service.GitAuth(key)
+	pubKeys, err := service.GitAuth(key, r.Repo)
 	if err != nil {
 		return opt
 	}

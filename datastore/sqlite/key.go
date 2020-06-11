@@ -13,7 +13,6 @@ const createKeysTableSQL = `
 	CREATE TABLE IF NOT EXISTS keys (
 		id               varchar(200) primary key not null,
 		name             varchar(200) UNIQUE not null,
-		username         varchar(200) not null,
 		data             text not null,
 		password         varchar(200) default '',
 		created          timestamp default current_timestamp,
@@ -21,15 +20,15 @@ const createKeysTableSQL = `
 	)
 `
 const addKeysSQL = `
-	INSERT INTO keys (id, name, username, data, password) VALUES ($1, $2, $3, $4, $5)
+	INSERT INTO keys (id, name, data, password) VALUES ($1, $2, $3, $4)
 `
 const getKeysSQL = `
-	SELECT id, name, username, data, password
+	SELECT id, name, data, password
 	FROM keys
 	WHERE id=$1
 `
 const listKeysSQL = `
-	SELECT id, name, username, created
+	SELECT id, name, created
 	FROM keys
 	ORDER BY name
 `
@@ -38,7 +37,7 @@ const deleteKeysSQL = `
 `
 
 // KeysCreate stores a new ssh key
-func (db *DB) KeysCreate(name, username, data, password string) (string, error) {
+func (db *DB) KeysCreate(name, data, password string) (string, error) {
 	// Get the secret key
 	secret, err := db.secretKey()
 	if err != nil {
@@ -57,14 +56,14 @@ func (db *DB) KeysCreate(name, username, data, password string) (string, error) 
 
 	// Save the encrypted record
 	id := xid.New()
-	_, err = db.Exec(addKeysSQL, id.String(), name, username, dataEnc, passwordEnc)
+	_, err = db.Exec(addKeysSQL, id.String(), name, dataEnc, passwordEnc)
 	return id.String(), err
 }
 
 // KeysGet fetches an ssh key by its ID
 func (db *DB) KeysGet(id string) (domain.Key, error) {
 	r := domain.Key{}
-	err := db.QueryRow(getKeysSQL, id).Scan(&r.ID, &r.Name, &r.Username, &r.Data, &r.Password)
+	err := db.QueryRow(getKeysSQL, id).Scan(&r.ID, &r.Name, &r.Data, &r.Password)
 	switch {
 	case err == sql.ErrNoRows:
 		return r, err
@@ -106,7 +105,7 @@ func (db *DB) KeysList() ([]domain.Key, error) {
 
 	for rows.Next() {
 		r := domain.Key{}
-		err := rows.Scan(&r.ID, &r.Name, &r.Username, &r.Created)
+		err := rows.Scan(&r.ID, &r.Name, &r.Created)
 		if err != nil {
 			return records, err
 		}

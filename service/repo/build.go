@@ -227,7 +227,7 @@ func (bld *BuildService) gitAuth(r domain.Repo) (transport.AuthMethod, error) {
 	}
 
 	// Set the ssh auth for git
-	return service.GitAuth(key)
+	return service.GitAuth(key, r.Repo)
 }
 
 // checkForDownloadFile parses the message to see if we have the download file path

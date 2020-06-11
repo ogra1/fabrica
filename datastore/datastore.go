@@ -22,7 +22,7 @@ type Datastore interface {
 	RepoUpdateHash(id, hash string) error
 	RepoDelete(id string) error
 
-	KeysCreate(name, username, data, password string) (string, error)
+	KeysCreate(name, data, password string) (string, error)
 	KeysGet(id string) (domain.Key, error)
 	KeysList() ([]domain.Key, error)
 	KeysDelete(id string) error
