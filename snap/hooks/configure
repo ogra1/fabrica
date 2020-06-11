@@ -26,8 +26,3 @@ if snapctl services ${SNAP_NAME}.init | grep -q inactive; then
   snapctl start --enable ${SNAP_NAME}.init 2>&1 || true
 fi
 
-if [ ! -f "$SNAP_DATA/ssh/ssh_host_rsa_key" ]; then
-  echo "generate ssh host keys"
-  cp $SNAP/ssh/* $SNAP_DATA/ssh/
-  $SNAP/bin/fabrica -mode keygen
-fi
