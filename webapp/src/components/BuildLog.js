@@ -53,7 +53,12 @@ class BuildLog extends Component {
     }
 
     renderLog() {
-        if (!this.state.build.logs) {return T('getting-ready')+ '\r\n'}
+        if (!this.state.build.logs) {
+            return (
+                <div className="log">
+                    <p>{T('getting-ready')}</p>
+                </div>
+            )}
 
         return (
             <div className="log">

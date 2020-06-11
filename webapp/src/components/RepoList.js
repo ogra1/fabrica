@@ -19,6 +19,19 @@ class RepoList extends Component {
         }
     }
 
+    keyName(keyId) {
+        if (!keyId) {
+            return ''
+        }
+        let names = this.props.keys.filter(k => {
+            return k.id === keyId
+        })
+        if (names.length > 0) {
+            return names[0].name
+        }
+        return ''
+    }
+
     handleAddClick = (e) => {
         e.preventDefault()
         this.setState({showAdd: true})
@@ -91,6 +104,7 @@ class RepoList extends Component {
                     {content: r.name, role: 'rowheader'},
                     {content: r.repo},
                     {content: r.branch},
+                    {content: this.keyName(r.keyId)},
                     {content: r.hash},
                     {content: r.created},
                     {content: r.modified},
@@ -126,7 +140,9 @@ class RepoList extends Component {
                             content: T('repo'),
                             className: "col-medium"
                     }, {
-                        content: T('branch'),
+                            content: T('branch'),
+                    }, {
+                            content: T('key'),
                     }, {
                         content: T('last-commit'),
                     }, {
