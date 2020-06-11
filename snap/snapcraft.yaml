@@ -41,7 +41,7 @@ confinement: strict
 
 layout:
   /etc/ssh:
-    bind: $SNAP/ssh
+    bind: $SNAP_DATA/ssh
 
 apps:
   init:

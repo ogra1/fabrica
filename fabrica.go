@@ -5,18 +5,25 @@ import (
 	"github.com/ogra1/fabrica/config"
 	"github.com/ogra1/fabrica/datastore"
 	"github.com/ogra1/fabrica/datastore/sqlite"
+	"github.com/ogra1/fabrica/service"
 	"github.com/ogra1/fabrica/service/key"
 	"github.com/ogra1/fabrica/service/lxd"
 	"github.com/ogra1/fabrica/service/repo"
 	"github.com/ogra1/fabrica/service/system"
 	"github.com/ogra1/fabrica/service/watch"
 	"github.com/ogra1/fabrica/web"
+	"os"
 )
 
 func main() {
 	var mode string
-	flag.StringVar(&mode, "mode", "web", "Mode of operation: web, watch")
+	flag.StringVar(&mode, "mode", "web", "Mode of operation: web, watch, keygen")
 	flag.Parse()
+
+	if mode == "keygen" {
+		service.GenerateHostKey()
+		os.Exit(0)
+	}
 
 	settings := config.ReadParameters()
 
