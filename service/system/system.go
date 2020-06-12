@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/ogra1/fabrica/datastore"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
@@ -27,11 +28,14 @@ const (
 
 // Service implements a system service
 type Service struct {
+	Datastore datastore.Datastore
 }
 
 // NewSystemService creates a new system service
-func NewSystemService() *Service {
-	return &Service{}
+func NewSystemService(ds datastore.Datastore) *Service {
+	return &Service{
+		Datastore: ds,
+	}
 }
 
 // CPU returns the current CPU usage

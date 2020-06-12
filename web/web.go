@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/ogra1/fabrica/config"
+	"github.com/ogra1/fabrica/service/key"
 	"github.com/ogra1/fabrica/service/lxd"
 	"github.com/ogra1/fabrica/service/repo"
 	"github.com/ogra1/fabrica/service/system"
@@ -16,15 +17,17 @@ type Web struct {
 	BuildSrv  repo.BuildSrv
 	LXDSrv    lxd.Service
 	SystemSrv system.Srv
+	KeySrv    key.Srv
 }
 
 // NewWebService starts a new web service
-func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv, lxdSrv lxd.Service, systemSrv system.Srv) *Web {
+func NewWebService(settings *config.Settings, bldSrv repo.BuildSrv, lxdSrv lxd.Service, systemSrv system.Srv, keySrv key.Srv) *Web {
 	return &Web{
 		Settings:  settings,
 		BuildSrv:  bldSrv,
 		LXDSrv:    lxdSrv,
 		SystemSrv: systemSrv,
+		KeySrv:    keySrv,
 	}
 }
 
@@ -56,6 +59,10 @@ func (srv Web) Router() *mux.Router {
 	router.Handle("/v1/system", Middleware(http.HandlerFunc(srv.SystemResources))).Methods("GET")
 	router.Handle("/v1/system/environment", Middleware(http.HandlerFunc(srv.Environment))).Methods("GET")
 
+	router.Handle("/v1/keys", Middleware(http.HandlerFunc(srv.KeyList))).Methods("GET")
+	router.Handle("/v1/keys", Middleware(http.HandlerFunc(srv.KeyCreate))).Methods("POST")
+	router.Handle("/v1/keys/{id}", Middleware(http.HandlerFunc(srv.KeyDelete))).Methods("DELETE")
+
 	// Serve the static path
 	fs := http.StripPrefix("/static/", http.FileServer(http.Dir(docRoot)))
 	router.PathPrefix("/static/").Handler(fs)
@@ -64,6 +71,7 @@ func (srv Web) Router() *mux.Router {
 	router.Handle("/", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 	router.Handle("/builds/{id}", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 	router.Handle("/builds/{id}/download", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
+	router.Handle("/settings", Middleware(http.HandlerFunc(srv.Index))).Methods("GET")
 
 	return router
 }

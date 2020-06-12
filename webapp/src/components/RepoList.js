@@ -13,9 +13,23 @@ class RepoList extends Component {
             showAdd: false,
             repo: '',
             branch: 'master',
+            keyId: '',
             showDelete: false,
             delete: {deleteBuilds:false},
         }
+    }
+
+    keyName(keyId) {
+        if (!keyId) {
+            return ''
+        }
+        let names = this.props.keys.filter(k => {
+            return k.id === keyId
+        })
+        if (names.length > 0) {
+            return names[0].name
+        }
+        return ''
     }
 
     handleAddClick = (e) => {
@@ -66,9 +80,14 @@ class RepoList extends Component {
         this.setState({branch: e.target.value})
     }
 
+    handleKeyIdChange = (e) => {
+        e.preventDefault()
+        this.setState({keyId: e.target.value})
+    }
+
     handleRepoCreate = (e) => {
         e.preventDefault()
-        api.repoCreate(this.state.repo, this.state.branch).then(response => {
+        api.repoCreate(this.state.repo, this.state.branch, this.state.keyId).then(response => {
             this.props.onCreate()
             this.setState({error:'', showAdd: false, repo:''})
         })
@@ -85,6 +104,7 @@ class RepoList extends Component {
                     {content: r.name, role: 'rowheader'},
                     {content: r.repo},
                     {content: r.branch},
+                    {content: this.keyName(r.keyId)},
                     {content: r.hash},
                     {content: r.created},
                     {content: r.modified},
@@ -103,7 +123,9 @@ class RepoList extends Component {
                         </Button>
                     </div>
                     {this.state.showAdd ?
-                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick} onChange={this.handleRepoChange} onChangeBranch={this.handleBranchChange} repo={this.state.repo} branch={this.state.branch} />
+                        <RepoAdd onClick={this.handleRepoCreate} onCancel={this.handleCancelClick}
+                                 onChange={this.handleRepoChange} onChangeBranch={this.handleBranchChange} onChangeKeyId={this.handleKeyIdChange}
+                                 repo={this.state.repo} branch={this.state.branch} keyId={this.state.keyId} keys={this.props.keys} />
                         :
                         ''
                     }
@@ -118,7 +140,9 @@ class RepoList extends Component {
                             content: T('repo'),
                             className: "col-medium"
                     }, {
-                        content: T('branch'),
+                            content: T('branch'),
+                    }, {
+                            content: T('key'),
                     }, {
                         content: T('last-commit'),
                     }, {

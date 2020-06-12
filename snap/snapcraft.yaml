@@ -1,6 +1,6 @@
 name: fabrica
 base: core18
-version: '1.0.2'
+version: '1.1.0'
 summary: your own snap build factory
 description: |
   Fabrica is a web service to be run on an lxd appliance. It spawns a
@@ -15,6 +15,7 @@ description: |
       snap connect fabrica:lxd lxd:lxd
       snap connect fabrica:mount-observe
       snap connect fabrica:system-observe
+      snap connect fabrica:ssh-keys
 
   Now fabrica will come up on port 8000.
   Point your web browser to http://localhost:8000 (or to the external
@@ -38,6 +39,10 @@ description: |
 grade: stable
 confinement: strict
 
+layout:
+  /etc/ssh:
+    bind: $SNAP_DATA/ssh
+
 apps:
   init:
     command: bin/init.py
@@ -55,6 +60,7 @@ apps:
       - network
       - network-bind
       - system-observe
+      - ssh-keys
   watch:
     command: bin/watch
     daemon: simple
@@ -64,6 +70,7 @@ apps:
       - network
       - network-bind
       - system-observe
+      - ssh-keys
 
 parts:
   react:
@@ -109,6 +116,9 @@ parts:
       mkdir -p $SNAPCRAFT_PART_INSTALL/bin
       cp bin/init.py $SNAPCRAFT_PART_INSTALL/bin/
 
+      cp -r ssh/ $SNAPCRAFT_PART_INSTALL
+      chmod 644 $SNAPCRAFT_PART_INSTALL/ssh/*
+
   application:
     plugin: go
     source: .
@@ -124,3 +134,4 @@ parts:
     plugin: dump
     organize:
       "*": /bin/
+

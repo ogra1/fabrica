@@ -8,7 +8,7 @@ class BuildLog extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            build: {logs:[{message:'Getting ready'}, {message:'milestone: Hello world\n\n'}, {message:'This is new'}]},
+            build: {logs:[{message:'Getting ready'}, {message:'milestone: Loading...\n\n'}]},
             //build: {},
             error: '',
             scrollLog: false,
@@ -53,7 +53,12 @@ class BuildLog extends Component {
     }
 
     renderLog() {
-        if (!this.state.build.logs) {return T('getting-ready')+ '\r\n'}
+        if (!this.state.build.logs) {
+            return (
+                <div className="log">
+                    <p>{T('getting-ready')}</p>
+                </div>
+            )}
 
         return (
             <div className="log">

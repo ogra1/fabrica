@@ -4,13 +4,19 @@ import (
 	"fmt"
 	"github.com/ogra1/fabrica/domain"
 	"log"
+	"strings"
 )
 
 // RepoCreate creates a new repo
-func (bld *BuildService) RepoCreate(repo, branch string) (string, error) {
+func (bld *BuildService) RepoCreate(repo, branch, keyID string) (string, error) {
+	// Handle Launchpad git URLs
+	if strings.HasPrefix(repo, "git+ssh") {
+		repo = strings.Replace(repo, "git+ssh", "ssh", 1)
+	}
+
 	// Store the build request
 	name := nameFromRepo(repo)
-	repoID, err := bld.Datastore.RepoCreate(name, repo, branch)
+	repoID, err := bld.Datastore.RepoCreate(name, repo, branch, keyID)
 	if err != nil {
 		return repoID, fmt.Errorf("error storing repo: %v", err)
 	}

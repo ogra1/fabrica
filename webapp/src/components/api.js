@@ -22,8 +22,8 @@ let service = {
         return axios.get(constants.baseUrl + 'repos');
     },
 
-    repoCreate: (repo, branch, cancelCallback) => {
-        return axios.post(constants.baseUrl + 'repos', {repo: repo, branch: branch});
+    repoCreate: (repo, branch, keyId, cancelCallback) => {
+        return axios.post(constants.baseUrl + 'repos', {repo: repo, branch: branch, keyId: keyId});
     },
 
     repoDelete: (repoId, deleteBuilds, cancelCallback) => {
@@ -44,6 +44,14 @@ let service = {
 
     systemEnvironment: (cancelCallback) => {
         return axios.get(constants.baseUrl + 'system/environment');
+    },
+
+    keysList: (cancelCallback) => {
+        return axios.get(constants.baseUrl + 'keys');
+    },
+
+    keysCreate: (key, cancelCallback) => {
+        return axios.post(constants.baseUrl + 'keys', key);
     },
 }
 

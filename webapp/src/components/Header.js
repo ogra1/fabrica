@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {T} from "./Utils";
 
 
-let links = [];
+let links = ['settings'];
 
 class Header extends Component {
     constructor(props) {

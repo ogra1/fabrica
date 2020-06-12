@@ -8,6 +8,7 @@ type Repo struct {
 	Name       string    `json:"name"`
 	Repo       string    `json:"repo"`
 	Branch     string    `json:"branch"`
+	KeyID      string    `json:"keyId"`
 	LastCommit string    `json:"hash"`
 	Created    time.Time `json:"created"`
 	Modified   time.Time `json:"modified"`
@@ -46,4 +47,21 @@ type SystemResources struct {
 	CPU    float64 `json:"cpu"`
 	Memory float64 `json:"memory"`
 	Disk   float64 `json:"disk"`
+}
+
+// ConfigSetting is a stored config setting
+type ConfigSetting struct {
+	ID   string `json:"id"`
+	Key  string `json:"key"`
+	Name string `json:"name"`
+	Data string `json:"data"`
+}
+
+// Key is an ssh key for a repo
+type Key struct {
+	ID       string    `json:"id"`
+	Name     string    `json:"name"`
+	Data     string    `json:"data,omitempty"`
+	Password string    `json:"password,omitempty"`
+	Created  time.Time `json:"created"`
 }

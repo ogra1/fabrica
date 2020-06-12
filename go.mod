@@ -11,6 +11,7 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/rs/xid v1.2.1
 	github.com/shirou/gopsutil v2.20.5+incompatible
+	golang.org/x/crypto v0.0.0-20200302210943-78000ba7a073
 	gopkg.in/macaroon-bakery.v2 v2.2.0 // indirect
 	gopkg.in/robfig/cron.v2 v2.0.0-20150107220207-be2e0b0deed5 // indirect
 	gopkg.in/yaml.v2 v2.3.0

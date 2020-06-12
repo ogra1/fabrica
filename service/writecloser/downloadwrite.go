@@ -48,7 +48,8 @@ func (dwn *DownloadWriteCloser) Write(b []byte) (int, error) {
 func (dwn *DownloadWriteCloser) cleanFilename(filePath string) string {
 	// Get the snap file name (without the extra text at the end)
 	parts := strings.Split(filePath, ".snap")
-	return parts[0] + ".snap"
+	name := parts[0] + ".snap"
+	return strings.Trim(name, "'")
 }
 
 // Close is a noop to fulfill the interface

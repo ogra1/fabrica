@@ -19,7 +19,7 @@ func (srv Web) RepoCreate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create the repo
-	repoID, err := srv.BuildSrv.RepoCreate(req.Repo, req.Branch)
+	repoID, err := srv.BuildSrv.RepoCreate(req.Repo, req.Branch, req.KeyID)
 	if err != nil {
 		formatStandardResponse("repo", err.Error(), w)
 		return

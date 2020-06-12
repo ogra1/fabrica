@@ -50,9 +50,16 @@ func (db *DB) CreateTables() error {
 	if _, err := db.Exec(createBuildLogTableSQL); err != nil {
 		return err
 	}
+	if _, err := db.Exec(createSettingsTableSQL); err != nil {
+		return err
+	}
+	if _, err := db.Exec(createKeysTableSQL); err != nil {
+		return err
+	}
 	_, _ = db.Exec(alterRepoTableSQL)
 	_, _ = db.Exec(alterBuildTableSQL)
 	_, _ = db.Exec(alterBuildTableSQLcontainer)
+	_, _ = db.Exec(alterRepoTableKeySQL)
 	return nil
 }
 

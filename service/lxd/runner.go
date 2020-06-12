@@ -1,6 +1,8 @@
 package lxd
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
@@ -28,7 +30,6 @@ var containerCmd = [][]string{
 	{"apt", "-y", "install", "build-essential"},
 	{"apt", "-y", "clean"},
 	{"snap", "install", "snapcraft", "--classic"},
-	{"snap", "list"},
 }
 
 // runner services to run one build in LXD
@@ -50,7 +51,7 @@ func newRunner(buildID string, ds datastore.Datastore, sysSrv system.Srv, c lxd.
 }
 
 // runBuild launches an LXD container to start the build
-func (run *runner) runBuild(name, repo, branch, distro string) error {
+func (run *runner) runBuild(name, repo, branch, keyID, distro string) error {
 	log.Println("Run build:", name, repo, distro)
 	log.Println("Creating and starting container")
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Creating and starting container")
@@ -78,8 +79,32 @@ func (run *runner) runBuild(name, repo, branch, distro string) error {
 	run.waitForNetwork(cname)
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Network is ready")
 
+	// Copy the ssh_config file to the container as .ssh/config
+	// This has defaults for ssh to handle network issues with accessing various git vendors
+	if err := run.setSSHConfig(cname, dbWC); err != nil {
+		log.Println("Error creating ssh config:", err)
+		run.Datastore.BuildLogCreate(run.BuildID, err.Error())
+		return err
+	}
+
+	// Create the ssh private key file in the container, if needed
+	passwordNeeded, err := run.setSSHKey(cname, keyID)
+	if err != nil {
+		log.Println("Error creating ssh key:", err)
+		run.Datastore.BuildLogCreate(run.BuildID, err.Error())
+		return err
+	}
+
+	// Create script to clone the repo
+	if err := run.cloneRepoScript(cname, repo, branch, passwordNeeded); err != nil {
+		run.Datastore.BuildLogCreate(run.BuildID, err.Error())
+		return err
+	}
+
 	// Install the pre-requisites in the container and clone the repo
-	commands := append(containerCmd, []string{"git", "clone", "-b", branch, "--progress", repo})
+	// The 'clone' script handles the ssh key and any password
+	commands := containerCmd
+	commands = append(containerCmd, []string{"/root/clone"})
 
 	run.Datastore.BuildLogCreate(run.BuildID, "milestone: Install dependencies")
 	for _, cmd := range commands {
@@ -124,6 +149,102 @@ func (run *runner) runBuild(name, repo, branch, distro string) error {
 
 	// Remove the container on successful completion
 	return run.deleteContainer(cname)
+}
+
+// setSSHKey sets up the ssh key in the
+func (run *runner) setSSHKey(cname, keyID string) (bool, error) {
+	if keyID == "" {
+		return false, nil
+	}
+
+	// Get the ssh key
+	key, err := run.Datastore.KeysGet(keyID)
+	if err != nil {
+		log.Println("Error fetching ssh key:", err)
+		return false, err
+	}
+
+	// Decode the base64-encoded data
+	data, err := base64.StdEncoding.DecodeString(key.Data)
+	if err != nil {
+		log.Println("Error decoding ssh key:", err)
+		return false, err
+	}
+
+	// Add the ssh key to the container
+	if err := run.Connection.CreateContainerFile(cname, "/root/.ssh/id_rsa", lxd.ContainerFileArgs{
+		Content: bytes.NewReader(data),
+		Mode:    0600,
+	}); err != nil {
+		return false, fmt.Errorf("error copying ssh key: %v", err)
+	}
+
+	// Don't need ssh-agent when there is no password on the ssh key, but need a dummy script
+	if key.Password == "" {
+		return false, nil
+	}
+
+	// Write the ssh-key password to a file
+	if err := run.Connection.CreateContainerFile(cname, "/root/.password", lxd.ContainerFileArgs{
+		Content: strings.NewReader(fmt.Sprintf("echo \"%s\"", key.Password)),
+		Mode:    0700,
+	}); err != nil {
+		return true, fmt.Errorf("error saving ssh key password: %v", err)
+	}
+
+	return true, nil
+}
+
+// setSSHConfig copies the ssh config file to handle ssh defaults for git vendors
+func (run *runner) setSSHConfig(cname string, stdOutErr io.WriteCloser) error {
+	// Create the /root/.ssh directory
+	if err := run.runInContainer(cname, []string{"mkdir", "-p", "/root/.ssh"}, "", stdOutErr); err != nil {
+		return fmt.Errorf("error creating .ssh: %v", err)
+	}
+	if err := run.runInContainer(cname, []string{"chmod", "700", "/root/.ssh"}, "", stdOutErr); err != nil {
+		return fmt.Errorf("error setting .ssh permissions: %v", err)
+	}
+
+	// Get our own config file (provided by the snapcraft layout)
+	f, err := os.Open("/etc/ssh/ssh_config")
+	if err != nil {
+		return fmt.Errorf("error reading /etc/ssh/ssh_config: %v", err)
+	}
+	defer f.Close()
+
+	// Add the ssh config file to the container
+	return run.Connection.CreateContainerFile(cname, "/root/.ssh/config", lxd.ContainerFileArgs{
+		Content: f,
+		Mode:    0644,
+	})
+}
+
+// cloneRepoScript creates a script to clone the repo, using ssh-agent to handle keys that need a passphrase
+func (run *runner) cloneRepoScript(cname, repo, branch string, passwordNeeded bool) error {
+	var clone string
+	if passwordNeeded {
+		clone = strings.Join(
+			[]string{"#!/bin/sh",
+				"eval `ssh-agent`",
+				"export DISPLAY=0",
+				"export SSH_ASKPASS=/root/.password",
+				"cat /root/.ssh/id_rsa | ssh-add -",
+				"git clone -b " + branch + " --progress " + repo,
+			}, "\n")
+	} else {
+		clone = strings.Join(
+			[]string{"#!/bin/sh",
+				"git clone -b " + branch + " --progress " + repo,
+			}, "\n")
+	}
+
+	if err := run.Connection.CreateContainerFile(cname, "/root/clone", lxd.ContainerFileArgs{
+		Content: strings.NewReader(clone),
+		Mode:    0700,
+	}); err != nil {
+		return fmt.Errorf("error saving agent script: %v", err)
+	}
+	return nil
 }
 
 func (run *runner) deleteContainer(cname string) error {

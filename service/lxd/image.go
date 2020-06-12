@@ -6,7 +6,7 @@ import (
 	"syscall"
 )
 
-var plugs = []string{"lxd", "mount-observe", "system-observe"}
+var plugs = []string{"lxd", "mount-observe", "system-observe", "ssh-keys"}
 
 // GetImageAlias checks of an image alias is available
 func (lx *LXD) GetImageAlias(name string) error {

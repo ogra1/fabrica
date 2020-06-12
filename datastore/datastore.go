@@ -16,9 +16,17 @@ type Datastore interface {
 	BuildLogCreate(id, message string) error
 	BuildLogList(id string) ([]domain.BuildLog, error)
 
-	RepoCreate(name, repo, branch string) (string, error)
+	RepoCreate(name, repo, branch, keyID string) (string, error)
 	RepoGet(id string) (domain.Repo, error)
 	RepoList(watch bool) ([]domain.Repo, error)
 	RepoUpdateHash(id, hash string) error
 	RepoDelete(id string) error
+
+	KeysCreate(name, data, password string) (string, error)
+	KeysGet(id string) (domain.Key, error)
+	KeysList() ([]domain.Key, error)
+	KeysDelete(id string) error
+
+	SettingsCreate(key, name, data string) (string, error)
+	SettingsGet(key, name string) (domain.ConfigSetting, error)
 }

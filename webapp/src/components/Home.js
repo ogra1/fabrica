@@ -16,11 +16,14 @@ class Home extends Component {
             images: [{name: 'fabrica-bionic', available: true}, {name: 'fabrica-xenial', available: false}],
             connections: [{name: 'lxd', available: true}, {name: 'system-observe', available: false}],
             repos: [
-                {id:'aaa', name:'test', repo:'github.com/TestCompany/test', branch:'master', hash:'abcdef', created:'2020-05-14T19:01:34Z', modified:'2020-05-14T19:01:34Z'}
+                {id:'aaa', name:'test', repo:'github.com/TestCompany/test', keyId:'a123', branch:'master', hash:'abcdef', created:'2020-05-14T19:01:34Z', modified:'2020-05-14T19:01:34Z'}
             ],
             builds: [
                 {id:'bbb', name:'test', repo:'github.com/TestCompany/test', branch:'master', status:'in-progress', duration: 222, created:'2020-05-14T19:30:34Z'}
             ],
+            keys: [
+                {id:'a123', name:'example', username:'example'}
+            ]
         }
     }
 
@@ -29,6 +32,7 @@ class Home extends Component {
         this.getDataBuilds()
         this.getDataConnections()
         this.getDataImages()
+        this.getDataKeys()
     }
 
     poll = () => {
@@ -96,6 +100,16 @@ class Home extends Component {
             console.log(formatError(e.response.data))
             this.setState({error: formatError(e.response.data), message: ''});
         })
+    }
+
+    getDataKeys() {
+        api.keysList().then(response => {
+            this.setState({keys: response.data.records})
+        })
+            .catch(e => {
+                console.log(formatError(e.response.data))
+                this.setState({error: formatError(e.response.data), message: ''});
+            })
     }
 
     getDataBuilds() {
@@ -171,7 +185,7 @@ class Home extends Component {
                         '' :
                         <ImageList images={this.state.images} />
                 }
-                <RepoList records={this.state.repos} onBuild={this.handleBuildClick} onCreate={this.handleRepoCreateClick} onDelete={this.handleRepoDelete} />
+                <RepoList records={this.state.repos} keys={this.state.keys} onBuild={this.handleBuildClick} onCreate={this.handleRepoCreateClick} onDelete={this.handleRepoDelete} />
                 <BuildList records={this.state.builds} onDelete={this.handleBuildDelete}/>
             </div>
         );
