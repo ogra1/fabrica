@@ -3,6 +3,7 @@
 
 if [ ! -f "$SNAP_DATA/ssh/ssh_host_rsa_key" ]; then
   echo "generate ssh host keys"
+  mkdir -p $SNAP_DATA/ssh
   cp $SNAP/ssh/* $SNAP_DATA/ssh/
   $SNAP/bin/fabrica -mode keygen
 fi
