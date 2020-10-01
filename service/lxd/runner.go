@@ -229,12 +229,12 @@ func (run *runner) cloneRepoScript(cname, repo, branch string, passwordNeeded bo
 				"export DISPLAY=0",
 				"export SSH_ASKPASS=/root/.password",
 				"cat /root/.ssh/id_rsa | ssh-add -",
-				"git clone -b " + branch + " --progress " + repo,
+				"git clone -b " + branch + " --progress --depth 1 " + repo,
 			}, "\n")
 	} else {
 		clone = strings.Join(
 			[]string{"#!/bin/sh",
-				"git clone -b " + branch + " --progress " + repo,
+				"git clone -b " + branch + " --progress --depth 1 " + repo,
 			}, "\n")
 	}
 
