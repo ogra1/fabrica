@@ -14,6 +14,7 @@ sudo snap install fabrica
 sudo snap connect fabrica:lxd lxd:lxd
 sudo snap connect fabrica:mount-observe :mount-observe
 sudo snap connect fabrica:system-observe :system-observe
+sudo snap connect fabrica:ssh-keys :ssh-keys
 ```
 
 ## Options
@@ -50,6 +51,10 @@ For testing purposes, it can also be run via:
 ```
 go run fabrica.go
 ```
+
+## API
+The application provides an [open API](docs/API.md) that allows it to be integrated with other
+services and scripts.
 
 ## Credits
 Icons provided by [Font Awesome](https://fontawesome.com/)
