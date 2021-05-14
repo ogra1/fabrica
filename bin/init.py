@@ -29,8 +29,8 @@ def get_driver():
 
 def create_storage():
     snap_data = os.environ['SNAP_DATA']
-    free = ( shutil.disk_usage(snap_data)[-1] / 10 ) * 6 
-    
+    free = ( shutil.disk_usage(snap_data)[-1] / 10 ) * 6
+
     config = { "config": { "size": convert(free) },
             "driver": get_driver(), "name": "default" }
 
@@ -51,7 +51,7 @@ def init_image(name):
           return
     except:
         print('Creating master image: ' + name)
-        
+
     image = client.images.create_from_simplestreams(
         'https://cloud-images.ubuntu.com/daily',
         name)
@@ -60,8 +60,7 @@ def init_image(name):
 
 def main():
     create_storage()
-    for img in ['bionic', 'xenial']:
+    for img in ['focal', 'bionic', 'xenial']:
         init_image(img)
-
 
 main()
