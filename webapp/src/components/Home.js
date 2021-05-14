@@ -13,7 +13,7 @@ class Home extends Component {
         this.state = {
             ready: true,
             connectReady: true,
-            images: [{name: 'fabrica-bionic', available: true}, {name: 'fabrica-xenial', available: false}],
+            images: [{name: 'fabrica-focal', available: true}, {name: 'fabrica-bionic', available: true}, {name: 'fabrica-xenial', available: false}],
             connections: [{name: 'lxd', available: true}, {name: 'system-observe', available: false}],
             repos: [
                 {id:'aaa', name:'test', repo:'github.com/TestCompany/test', keyId:'a123', branch:'master', hash:'abcdef', created:'2020-05-14T19:01:34Z', modified:'2020-05-14T19:01:34Z'}

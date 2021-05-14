@@ -5,7 +5,7 @@ import (
 	"net/http"
 )
 
-var aliases = []string{"fabrica-bionic", "fabrica-xenial"}
+var aliases = []string{"fabrica-focal", "fabrica-bionic", "fabrica-xenial"}
 
 // ImageAliases checks if the image aliases are available
 func (srv Web) ImageAliases(w http.ResponseWriter, r *http.Request) {
