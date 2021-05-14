@@ -39,6 +39,13 @@ description: |
 grade: stable
 confinement: strict
 
+architectures:
+  - build-on: armhf
+  - build-on: arm64
+  - build-on: amd64
+  - build-on: s390x
+  - build-on: ppc64el
+
 layout:
   /etc/ssh:
     bind: $SNAP_DATA/ssh
