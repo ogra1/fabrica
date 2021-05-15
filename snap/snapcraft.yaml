@@ -112,6 +112,8 @@ parts:
     plugin: python
     python-packages:
       - pylxd
+    build-environment:
+      - CRYPTOGRAPHY_DONT_BUILD_RUST: "1"
     build-packages:
       - libffi-dev
       - libssl-dev
