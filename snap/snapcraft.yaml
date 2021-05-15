@@ -111,9 +111,8 @@ parts:
   pylxd:
     plugin: python
     python-packages:
+      - cryptography == 3.3.2
       - pylxd
-    build-environment:
-      - CRYPTOGRAPHY_DONT_BUILD_RUST: "1"
     build-packages:
       - libffi-dev
       - libssl-dev
