@@ -1,0 +1,4 @@
+#! /bin/sh
+
+snapctl restart ${SNAP_NAME}.init 2>&1 || true
+
